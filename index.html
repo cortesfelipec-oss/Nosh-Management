@@ -20,6 +20,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#5eccc8">
+  <link rel="manifest" href="/manifest.json">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -3826,6 +3827,11 @@ _Nosh Boutique Catering · +1 (408) 506-0588_`;
       if (!isNaN(v)) this.value = String(Math.min(Math.max(v, 0), 59)).padStart(2, '0');
     });
   });
+
+  // ── PWA SERVICE WORKER ────────────────────────────────────────────────
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  }
 
   // ── INIT ──────────────────────────────────────────────────────────────
   updateRoleSelect();
