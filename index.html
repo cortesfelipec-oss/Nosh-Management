@@ -188,37 +188,33 @@
     .event-detail { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 
     .detail-header {
-      padding: 22px 28px 16px;
+      padding: 18px 28px 14px;
       border-bottom: 1px solid var(--border);
-      display: flex; align-items: flex-start; gap: 16px; flex-wrap: wrap;
       background: var(--surface);
     }
-    .detail-header .info { flex: 1; }
+    .dh-top {
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+      margin-bottom: 10px;
+    }
     .detail-header h2 {
-      font-size: 1.45rem; font-weight: 700; letter-spacing: -0.01em;
-      color: var(--text);
+      font-size: 1.35rem; font-weight: 800; letter-spacing: -0.02em;
+      color: var(--text); line-height: 1.2; margin: 0;
     }
-    .detail-header .meta-row { display: flex; gap: 0; margin-top: 8px; flex-wrap: wrap; }
-    .detail-header .meta-item {
-      font-size: 0.78rem;
-      padding: 4px 10px; border-radius: 999px; margin-right: 6px; margin-bottom: 4px;
-      border: 1px solid transparent;
+    .dh-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .dh-chip {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 4px 10px; border-radius: 20px;
+      font-size: 0.77rem; font-weight: 500;
+      background: var(--surface2); color: var(--text);
+      border: 1px solid var(--border);
     }
-    .detail-header .meta-item span { font-weight: 600; }
-
-    /* Fecha */
-    .detail-header .meta-item:nth-child(1) { background: #f0fafa; color: #1a9e99; border-color: #a8e6e4; }
-    .detail-header .meta-item:nth-child(1) span { color: #0d6e6a; }
-    /* Lugar */
-    .detail-header .meta-item:nth-child(2) { background: #f0fdf4; color: #166534; border-color: #bbf7d0; }
-    .detail-header .meta-item:nth-child(2) span { color: #14532d; }
-    /* Personas */
-    .detail-header .meta-item:nth-child(3) { background: #f0f9ff; color: #075985; border-color: #bae6fd; }
-    .detail-header .meta-item:nth-child(3) span { color: #0c4a6e; }
-    /* Notas */
-    #detail-notes-row .meta-item { background: #fffbeb; color: #92400e; border-color: #fde68a; }
-    #detail-notes-row .meta-item span { color: #78350f; }
-    .detail-actions { display: flex; gap: 8px; }
+    .dh-chip .ci { opacity: 0.75; }
+    .dh-notes-strip {
+      margin-top: 8px; padding: 6px 10px;
+      font-size: 0.78rem; color: var(--muted); font-style: italic;
+      background: #fffbeb; border-radius: 6px; border-left: 3px solid #fde68a;
+    }
+    .detail-actions { display: flex; gap: 8px; flex-shrink: 0; }
 
     /* ── TABS ── */
     .tabs {
@@ -1057,19 +1053,14 @@
     </div>
     <div class="event-detail" id="event-detail" style="display:none;">
       <div class="detail-header">
-        <div class="info">
+        <div class="dh-top">
           <h2 id="detail-name"></h2>
-          <div class="meta-row">
-            <div class="meta-item">📅 Fecha: <span id="detail-date"></span></div>
-            <div class="meta-item">📍 Lugar: <span id="detail-location"></span></div>
-            <div class="meta-item" id="detail-attendees-item">👥 Personas: <span id="detail-attendees"></span></div>
-            <div class="meta-item" id="detail-event-type-item" style="display:none;">🎉 Tipo: <span id="detail-event-type"></span></div>
+          <div class="detail-actions">
+            <button class="btn btn-outline btn-sm" onclick="openEventModal(currentEventId)">✏️ Editar</button>
           </div>
-          <div class="meta-row" id="detail-notes-row"></div>
         </div>
-        <div class="detail-actions">
-          <button class="btn btn-outline btn-sm" onclick="openEventModal(currentEventId)">✏️ Editar</button>
-        </div>
+        <div class="dh-chips" id="dh-chips"></div>
+        <div id="detail-notes-row"></div>
       </div>
 
       <div class="tabs">
@@ -1412,10 +1403,16 @@
     </div>
     <div class="form-group">
       <label>Horario del evento</label>
-      <div style="display:flex; align-items:center; gap:8px;">
-        <input type="text" id="modal-event-time-start" placeholder="09:00" inputmode="numeric" maxlength="5" style="flex:1; text-align:center;">
-        <span style="color:var(--muted); font-size:0.85rem; flex-shrink:0;">—</span>
-        <input type="text" id="modal-event-time-end" placeholder="17:00" inputmode="numeric" maxlength="5" style="flex:1; text-align:center;">
+      <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+        <input type="text" id="modal-event-time-start" placeholder="9:00" inputmode="numeric" maxlength="5" style="width:64px; text-align:center;">
+        <select id="modal-event-time-start-ampm" style="padding:8px 6px; font-size:0.88rem; border:1px solid var(--border); border-radius:8px; background:var(--surface2); color:var(--text);">
+          <option>AM</option><option>PM</option>
+        </select>
+        <span style="color:var(--muted); font-size:0.85rem;">—</span>
+        <input type="text" id="modal-event-time-end" placeholder="5:00" inputmode="numeric" maxlength="5" style="width:64px; text-align:center;">
+        <select id="modal-event-time-end-ampm" style="padding:8px 6px; font-size:0.88rem; border:1px solid var(--border); border-radius:8px; background:var(--surface2); color:var(--text);">
+          <option>AM</option><option>PM</option>
+        </select>
       </div>
     </div>
     <div class="form-group">
@@ -1973,6 +1970,22 @@
     localStorage.setItem('event-staff-app', JSON.stringify(state));
   }
 
+  // ── Helpers hora 12h ↔ 24h ────────────────────────────────────────
+  function to24h(timeStr, ampm) {
+    if (!timeStr) return '';
+    const parts = timeStr.replace(/[^\d:]/g, '').split(':');
+    let h = parseInt(parts[0]) || 0;
+    const m = parseInt(parts[1]) || 0;
+    if (ampm === 'PM' && h !== 12) h += 12;
+    if (ampm === 'AM' && h === 12) h = 0;
+    return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+  }
+  function to12h(time24) {
+    if (!time24) return { time: '', ampm: 'AM' };
+    const [h, m] = time24.split(':').map(Number);
+    return { time: `${h % 12 || 12}:${String(m).padStart(2,'0')}`, ampm: h >= 12 ? 'PM' : 'AM' };
+  }
+
   // ── EVENTS ─────────────────────────────────────────────────────────
   function openEventModal(id = null) {
     document.getElementById('modal-title').textContent = id ? 'Editar Evento' : 'Nuevo Evento';
@@ -1980,8 +1993,11 @@
     document.getElementById('modal-event-name').value      = ev.name      || '';
     document.getElementById('modal-event-date').value      = ev.date      || '';
     document.getElementById('modal-event-location').value  = ev.location  || '';
-    document.getElementById('modal-event-time-start').value = ev.timeStart || '';
-    document.getElementById('modal-event-time-end').value   = ev.timeEnd   || '';
+    const ts = to12h(ev.timeStart), te = to12h(ev.timeEnd);
+    document.getElementById('modal-event-time-start').value      = ts.time;
+    document.getElementById('modal-event-time-start-ampm').value = ts.ampm;
+    document.getElementById('modal-event-time-end').value        = te.time;
+    document.getElementById('modal-event-time-end-ampm').value   = te.ampm;
     document.getElementById('modal-event-attendees').value  = ev.attendees || '';
     document.getElementById('modal-event-notes').value      = ev.notes     || '';
     document.getElementById('modal-event-type').value    = ev.eventType    || '';
@@ -2028,8 +2044,8 @@
       name,
       date,
       location:     document.getElementById('modal-event-location').value.trim(),
-      timeStart:    document.getElementById('modal-event-time-start').value,
-      timeEnd:      document.getElementById('modal-event-time-end').value,
+      timeStart:    to24h(document.getElementById('modal-event-time-start').value, document.getElementById('modal-event-time-start-ampm').value),
+      timeEnd:      to24h(document.getElementById('modal-event-time-end').value,   document.getElementById('modal-event-time-end-ampm').value),
       attendees:    document.getElementById('modal-event-attendees').value.trim(),
       notes:        document.getElementById('modal-event-notes').value.trim(),
       eventType:    document.getElementById('modal-event-type').value,
@@ -2100,32 +2116,34 @@
     document.getElementById('empty-state').style.display = 'none';
     document.getElementById('event-detail').style.display = 'flex';
 
-    document.getElementById('detail-name').textContent     = ev.name;
-    document.getElementById('detail-date').textContent     = ev.date ? formatDate(ev.date) : '—';
-    document.getElementById('detail-location').textContent = ev.location || '—';
-    const attendeesItem = document.getElementById('detail-attendees-item');
-    if (ev.attendees) {
-      document.getElementById('detail-attendees').textContent = Number(ev.attendees).toLocaleString('es-MX');
-      attendeesItem.style.display = '';
-    } else {
-      attendeesItem.style.display = 'none';
-    }
-    const notesRow = document.getElementById('detail-notes-row');
-    notesRow.innerHTML = ev.notes ? `<div class="meta-item">📝 <span>${ev.notes}</span></div>` : '';
-    const typeLabels = { coctel: 'Cóctel Party-Recepción', lunch: 'Lunch', diner: 'Diner' };
+    document.getElementById('detail-name').textContent = ev.name;
+
+    // Construir chips de info
+    const typeLabels = { coctel: 'Cóctel · Recepción', lunch: 'Lunch', diner: 'Diner' };
     const subLabels  = { full: 'Full (Bar y Recepción)', recepcion: 'y Recepción', bar: 'Bar' };
-    const typeItem = document.getElementById('detail-event-type-item');
-    if (ev.eventType) {
-      let label = typeLabels[ev.eventType] || ev.eventType;
-      if (ev.eventSubtype && subLabels[ev.eventSubtype]) {
-        const cap = ev.eventType === 'lunch' ? 'Lunch' : (ev.eventType === 'diner' ? 'Diner' : '');
-        label += (cap ? ' — ' + cap + ' ' : ' — ') + subLabels[ev.eventSubtype];
-      }
-      document.getElementById('detail-event-type').textContent = label;
-      typeItem.style.display = '';
-    } else {
-      typeItem.style.display = 'none';
+    function chip(icon, text) {
+      return `<span class="dh-chip"><span class="ci">${icon}</span>${text}</span>`;
     }
+    function fmt12(t) {
+      if (!t) return null;
+      const [h, m] = t.split(':').map(Number);
+      return `${h % 12 || 12}:${String(m).padStart(2,'0')} ${h >= 12 ? 'p.m.' : 'a.m.'}`;
+    }
+    const chips = [];
+    if (ev.date)      chips.push(chip('📅', formatDate(ev.date)));
+    if (ev.location)  chips.push(chip('📍', ev.location));
+    const t1 = fmt12(ev.timeStart), t2 = fmt12(ev.timeEnd);
+    if (t1 && t2)     chips.push(chip('🕐', `${t1} — ${t2}`));
+    else if (t1)      chips.push(chip('🕐', `desde ${t1}`));
+    if (ev.attendees) chips.push(chip('👥', `${Number(ev.attendees).toLocaleString('es-MX')} personas`));
+    if (ev.eventType) {
+      let tlabel = typeLabels[ev.eventType] || ev.eventType;
+      if (ev.eventSubtype && subLabels[ev.eventSubtype]) tlabel += ' — ' + subLabels[ev.eventSubtype];
+      chips.push(chip('🎉', tlabel));
+    }
+    document.getElementById('dh-chips').innerHTML = chips.join('');
+    const notesRow = document.getElementById('detail-notes-row');
+    notesRow.innerHTML = ev.notes ? `<div class="dh-notes-strip">📝 ${ev.notes}</div>` : '';
 
     if (currentTab === 'planeacion') renderPlaneacion();
     else if (currentTab === 'staff') renderStaff();
