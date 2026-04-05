@@ -3578,8 +3578,21 @@ _Nosh Boutique Catering · +1 (408) 506-0588_`;
   }
 
   // ── DIRECTORIO ────────────────────────────────────────────────────────
+  const SEED_DIRECTORY = [
+    { id: "1775425108570", name: "Juan David Grisales",    role: "", phone: "408 687 8907", email: "JuanG@gmail.com",           shirt: "S",  notes: "" },
+    { id: "1775425173911", name: "Maira Alejandra Grisales", role: "", phone: "669 657 4567", email: "AlejandraG@gamial.com",   shirt: "S",  notes: "" },
+    { id: "1775425283458", name: "Diego Fernando Grisales", role: "", phone: "707 454 3452", email: "DiegoG@gmail.com",         shirt: "M",  notes: "" },
+    { id: "1775425340564", name: "Javier Felipe Cortes",   role: "", phone: "408 506 0588", email: "cortesfelipec@gmail.com",   shirt: "M",  notes: "" },
+    { id: "1775425417665", name: "Juan Manuel Olaya",      role: "", phone: "707 879 5464", email: "JuanO@gmail.com",           shirt: "L",  notes: "" },
+    { id: "1775425491301", name: "Rosa Martinez",          role: "", phone: "909 546 7687", email: "RosaM@.gmail.com",          shirt: "M",  notes: "" },
+    { id: "1775425546218", name: "Maria Perez",            role: "", phone: "404 435 8597", email: "MariaP@gmail.com",          shirt: "XL", notes: "" },
+  ];
+
   function getDirectory() {
-    if (!state.directory) state.directory = [];
+    if (!state.directory || state.directory.length === 0) {
+      state.directory = SEED_DIRECTORY.map(p => ({ ...p }));
+      save();
+    }
     return state.directory;
   }
 
