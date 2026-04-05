@@ -93,12 +93,21 @@
       display: flex; flex-direction: column; gap: 1px;
     }
     header h1 {
-      font-size: 1.05rem; font-weight: 700;
-      color: #f1f5f9; letter-spacing: 0.01em;
+      font-size: 1.25rem; font-weight: 800;
+      color: #f1f5f9; letter-spacing: -0.02em;
     }
     header .header-subtitle {
-      font-size: 0.82rem; color: #94b8c0; font-weight: 400;
+      font-size: 0.72rem; color: #94b8c0; font-weight: 400; letter-spacing: 0.02em;
     }
+    .header-dir-btn {
+      background: none; border: none; cursor: pointer;
+      color: #7a9ab0; font-size: 0.72rem; font-weight: 500;
+      display: flex; align-items: center; gap: 4px;
+      padding: 5px 8px; border-radius: 6px;
+      transition: color 0.2s, background 0.2s;
+      font-family: inherit;
+    }
+    .header-dir-btn:hover { color: #cbd5e1; background: rgba(255,255,255,0.06); }
 
     /* ── LAYOUT ── */
     .app { display: flex; height: calc(100vh - 62px); }
@@ -731,20 +740,37 @@
       display: inline-flex; align-items: center;
       border: 1px solid var(--border); border-radius: 8px;
       background: var(--surface2); overflow: hidden;
+      height: 40px;
     }
-    .time-pill input {
-      width: 52px; border: none; background: transparent;
-      padding: 9px 6px 9px 10px; font-size: 0.9rem;
-      text-align: center; color: var(--text);
+    .time-pill input[type=number] {
+      border: none; background: transparent;
+      font-size: 0.92rem; text-align: center;
+      color: var(--text); -moz-appearance: textfield;
+      padding: 0; min-width: 0;
     }
-    .time-pill input:focus { outline: none; }
+    .time-pill input[type=number]::-webkit-inner-spin-button,
+    .time-pill input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    .time-pill input[type=number]:focus { outline: none; }
+    .tp-h { width: 34px; padding-left: 8px !important; }
+    .tp-m { width: 26px; padding-right: 4px !important; }
+    .tp-sep { color: var(--muted); font-size: 0.92rem; user-select: none; line-height: 1; }
     .time-pill select {
       border: none; border-left: 1px solid var(--border);
-      background: transparent; padding: 0 6px;
-      font-size: 0.75rem; font-weight: 600; color: var(--accent);
-      cursor: pointer; height: 100%;
+      background: transparent; padding: 0 7px;
+      font-size: 0.72rem; font-weight: 700; color: var(--accent);
+      cursor: pointer; height: 100%; appearance: none; -webkit-appearance: none;
     }
     .time-pill select:focus { outline: none; }
+    .time-row { display: flex; align-items: center; gap: 8px; }
+    .time-dash { color: var(--muted); font-size: 0.85rem; flex-shrink: 0; }
+    /* Modal form grid */
+    .modal-form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px 12px;
+    }
+    .modal-form-grid .form-group { margin-bottom: 0; }
+    .modal-form-grid .mg-full { grid-column: 1 / -1; }
 
     /* ── NAME AUTOCOMPLETE ── */
     .name-dropdown {
@@ -1007,12 +1033,17 @@
         border-top: 3px solid #5eccc8;
       }
       /* Compactar formulario en móvil */
-      .modal h3 { font-size: 1rem; margin-bottom: 12px; }
-      .modal .form-group { margin-bottom: 8px; }
-      .modal .form-group label { font-size: 0.68rem; margin-bottom: 2px; }
+      .modal h3 { font-size: 1rem; margin-bottom: 10px; }
+      .modal-form-grid { grid-template-columns: 1fr 1fr; gap: 6px 10px; }
+      .modal .form-group { margin-bottom: 0; }
+      .modal .form-group label { font-size: 0.65rem; margin-bottom: 2px; }
       .modal .form-group input,
-      .modal .form-group select { padding: 8px 10px; font-size: 0.88rem; }
-      .modal .form-group textarea { padding: 8px 10px; font-size: 0.88rem; min-height: 45px; }
+      .modal .form-group select { padding: 7px 9px; font-size: 0.85rem; }
+      .modal .form-group textarea { padding: 7px 9px; font-size: 0.85rem; min-height: 40px; }
+      .time-pill { height: 36px; }
+      .tp-h { width: 30px; }
+      .tp-m { width: 24px; }
+      .time-pill select { font-size: 0.68rem; padding: 0 5px; }
       .modal-actions {
         flex-direction: column-reverse;
         gap: 8px;
@@ -1042,13 +1073,13 @@
     </div>
     <div class="header-divider"></div>
     <div class="header-app">
-      <h1>Management</h1>
-      <span class="header-subtitle">Gestión de eventos</span>
+      <h1>Staff Manager</h1>
+      <span class="header-subtitle">Nosh Boutique Catering</span>
     </div>
   </div>
   <div style="margin-left:auto;">
-    <button class="btn btn-sm" onclick="openDirectoryModal()" style="background:#1e293b;border:1px solid #2d3f55;color:#94a3b8;font-weight:600;font-size:0.78rem;">
-      🗂 Directorio de Personal
+    <button class="header-dir-btn" onclick="openDirectoryModal()">
+      🗂 <span>Directorio</span>
     </button>
   </div>
 </header>
@@ -1271,9 +1302,13 @@
 <!-- MODAL DIRECTORIO -->
 <div class="modal-overlay" id="directory-modal">
   <div class="modal" style="width:620px;max-width:98vw;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;gap:8px;flex-wrap:wrap;">
       <h3>🗂 Directorio de Personal</h3>
-      <button class="btn btn-primary btn-sm" onclick="openPersonForm()">+ Nueva persona</button>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <button class="btn btn-sm" onclick="exportDirectory()" style="background:#1e293b;border:1px solid #2d3f55;color:#94a3b8;font-size:0.75rem;">⬇ Exportar</button>
+        <button class="btn btn-sm" onclick="importDirectory()" style="background:#1e293b;border:1px solid #2d3f55;color:#94a3b8;font-size:0.75rem;">⬆ Importar</button>
+        <button class="btn btn-primary btn-sm" onclick="openPersonForm()">+ Nueva persona</button>
+      </div>
     </div>
 
     <!-- Formulario nueva/editar persona -->
@@ -1390,56 +1425,70 @@
 <div class="modal-overlay" id="event-modal">
   <div class="modal">
     <h3 id="modal-title">Nuevo Evento</h3>
-    <div class="form-group">
-      <label>Nombre del evento *</label>
-      <input type="text" id="modal-event-name" placeholder="Ej. Boda García">
-    </div>
-    <div class="form-group">
-      <label>Fecha del evento *</label>
-      <input type="date" id="modal-event-date">
-    </div>
-    <div class="form-group">
-      <label>Lugar</label>
-      <input type="text" id="modal-event-location" placeholder="Ej. Salón Versalles">
-    </div>
-    <div class="form-group">
-      <label>Tipo de evento</label>
-      <select id="modal-event-type" onchange="onEventTypeChange()">
-        <option value="">— Seleccionar —</option>
-        <option value="coctel">Cóctel Party-Recepción</option>
-        <option value="lunch">Lunch</option>
-        <option value="diner">Diner</option>
-      </select>
-    </div>
-    <div class="form-group" id="modal-event-subtype-group" style="display:none;">
-      <label id="modal-event-subtype-label">Modalidad</label>
-      <select id="modal-event-subtype">
-        <option value="full">Full Lunch (Bar y Recepción)</option>
-        <option value="recepcion">Lunch y Recepción</option>
-        <option value="bar">Lunch Bar</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label>Horario del evento</label>
-      <div style="display:flex; align-items:center; gap:8px;">
-        <div class="time-pill">
-          <input type="text" id="modal-event-time-start" placeholder="9:00" inputmode="numeric" maxlength="5">
-          <select id="modal-event-time-start-ampm"><option>AM</option><option>PM</option></select>
-        </div>
-        <span style="color:var(--muted); font-size:0.85rem; flex-shrink:0;">—</span>
-        <div class="time-pill">
-          <input type="text" id="modal-event-time-end" placeholder="5:00" inputmode="numeric" maxlength="5">
-          <select id="modal-event-time-end-ampm"><option>AM</option><option>PM</option></select>
+    <div class="modal-form-grid">
+      <!-- Nombre (full) -->
+      <div class="form-group mg-full">
+        <label>Nombre del evento *</label>
+        <input type="text" id="modal-event-name" placeholder="Ej. Boda García">
+      </div>
+      <!-- Fecha + Tipo -->
+      <div class="form-group">
+        <label>Fecha *</label>
+        <input type="date" id="modal-event-date">
+      </div>
+      <div class="form-group">
+        <label>Tipo de evento</label>
+        <select id="modal-event-type" onchange="onEventTypeChange()">
+          <option value="">— Tipo —</option>
+          <option value="coctel">Cóctel / Recepción</option>
+          <option value="lunch">Lunch</option>
+          <option value="diner">Diner</option>
+        </select>
+      </div>
+      <!-- Modalidad (full, hidden) -->
+      <div class="form-group mg-full" id="modal-event-subtype-group" style="display:none;">
+        <label id="modal-event-subtype-label">Modalidad</label>
+        <select id="modal-event-subtype">
+          <option value="full">Full Lunch (Bar y Recepción)</option>
+          <option value="recepcion">Lunch y Recepción</option>
+          <option value="bar">Lunch Bar</option>
+        </select>
+      </div>
+      <!-- Lugar (full) -->
+      <div class="form-group mg-full">
+        <label>Lugar</label>
+        <input type="text" id="modal-event-location" placeholder="Ej. Salón Versalles">
+      </div>
+      <!-- Horario (full) -->
+      <div class="form-group mg-full">
+        <label>Horario</label>
+        <div class="time-row">
+          <div class="time-pill">
+            <input type="number" class="tp-h" id="modal-event-time-start-h" placeholder="9" min="1" max="12" inputmode="numeric">
+            <span class="tp-sep">:</span>
+            <input type="number" class="tp-m" id="modal-event-time-start-m" placeholder="00" min="0" max="59" inputmode="numeric">
+            <select id="modal-event-time-start-ampm"><option>AM</option><option>PM</option></select>
+          </div>
+          <span class="time-dash">—</span>
+          <div class="time-pill">
+            <input type="number" class="tp-h" id="modal-event-time-end-h" placeholder="5" min="1" max="12" inputmode="numeric">
+            <span class="tp-sep">:</span>
+            <input type="number" class="tp-m" id="modal-event-time-end-m" placeholder="00" min="0" max="59" inputmode="numeric">
+            <select id="modal-event-time-end-ampm"><option>AM</option><option>PM</option></select>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="form-group">
-      <label>Número de personas (asistentes)</label>
-      <input type="number" id="modal-event-attendees" placeholder="Ej. 150" min="1">
-    </div>
-    <div class="form-group">
-      <label>Notas</label>
-      <textarea id="modal-event-notes" placeholder="Información adicional…"></textarea>
+      <!-- Asistentes (half) -->
+      <div class="form-group">
+        <label>Asistentes</label>
+        <input type="number" id="modal-event-attendees" placeholder="150" min="1">
+      </div>
+      <div></div>
+      <!-- Notas (full) -->
+      <div class="form-group mg-full">
+        <label>Notas</label>
+        <textarea id="modal-event-notes" placeholder="Información adicional…"></textarea>
+      </div>
     </div>
     <div class="modal-actions">
       <button class="btn btn-outline" onclick="closeEventModal()">Cancelar</button>
@@ -1989,19 +2038,18 @@
   }
 
   // ── Helpers hora 12h ↔ 24h ────────────────────────────────────────
-  function to24h(timeStr, ampm) {
-    if (!timeStr) return '';
-    const parts = timeStr.replace(/[^\d:]/g, '').split(':');
-    let h = parseInt(parts[0]) || 0;
-    const m = parseInt(parts[1]) || 0;
+  function to24h(hStr, mStr, ampm) {
+    if (!hStr) return '';
+    let h = Math.min(Math.max(parseInt(hStr) || 0, 1), 12);
+    const m = Math.min(Math.max(parseInt(mStr) || 0, 0), 59);
     if (ampm === 'PM' && h !== 12) h += 12;
     if (ampm === 'AM' && h === 12) h = 0;
     return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
   }
   function to12h(time24) {
-    if (!time24) return { time: '', ampm: 'AM' };
-    const [h, m] = time24.split(':').map(Number);
-    return { time: `${h % 12 || 12}:${String(m).padStart(2,'0')}`, ampm: h >= 12 ? 'PM' : 'AM' };
+    if (!time24) return { h: '', m: '', ampm: 'AM' };
+    const [hh, mm] = time24.split(':').map(Number);
+    return { h: String(hh % 12 || 12), m: String(mm).padStart(2,'0'), ampm: hh >= 12 ? 'PM' : 'AM' };
   }
 
   // ── EVENTS ─────────────────────────────────────────────────────────
@@ -2012,9 +2060,11 @@
     document.getElementById('modal-event-date').value      = ev.date      || '';
     document.getElementById('modal-event-location').value  = ev.location  || '';
     const ts = to12h(ev.timeStart), te = to12h(ev.timeEnd);
-    document.getElementById('modal-event-time-start').value      = ts.time;
+    document.getElementById('modal-event-time-start-h').value    = ts.h;
+    document.getElementById('modal-event-time-start-m').value    = ts.m;
     document.getElementById('modal-event-time-start-ampm').value = ts.ampm;
-    document.getElementById('modal-event-time-end').value        = te.time;
+    document.getElementById('modal-event-time-end-h').value      = te.h;
+    document.getElementById('modal-event-time-end-m').value      = te.m;
     document.getElementById('modal-event-time-end-ampm').value   = te.ampm;
     document.getElementById('modal-event-attendees').value  = ev.attendees || '';
     document.getElementById('modal-event-notes').value      = ev.notes     || '';
@@ -2062,8 +2112,8 @@
       name,
       date,
       location:     document.getElementById('modal-event-location').value.trim(),
-      timeStart:    to24h(document.getElementById('modal-event-time-start').value, document.getElementById('modal-event-time-start-ampm').value),
-      timeEnd:      to24h(document.getElementById('modal-event-time-end').value,   document.getElementById('modal-event-time-end-ampm').value),
+      timeStart:    to24h(document.getElementById('modal-event-time-start-h').value, document.getElementById('modal-event-time-start-m').value, document.getElementById('modal-event-time-start-ampm').value),
+      timeEnd:      to24h(document.getElementById('modal-event-time-end-h').value,   document.getElementById('modal-event-time-end-m').value,   document.getElementById('modal-event-time-end-ampm').value),
       attendees:    document.getElementById('modal-event-attendees').value.trim(),
       notes:        document.getElementById('modal-event-notes').value.trim(),
       eventType:    document.getElementById('modal-event-type').value,
@@ -3531,6 +3581,41 @@ _Nosh Boutique Catering · +1 (408) 506-0588_`;
     return state.directory;
   }
 
+  function exportDirectory() {
+    const data = JSON.stringify(getDirectory(), null, 2);
+    const blob = new Blob([data], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'directorio-nosh.json';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  function importDirectory() {
+    const inp = document.createElement('input');
+    inp.type = 'file'; inp.accept = '.json';
+    inp.onchange = e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        try {
+          const data = JSON.parse(ev.target.result);
+          if (!Array.isArray(data)) throw new Error('Formato inválido');
+          if (!confirm(`¿Importar ${data.length} persona(s)? Esto reemplazará el directorio actual.`)) return;
+          state.directory = data;
+          save();
+          renderDirectory();
+          alert('✅ Directorio importado con éxito.');
+        } catch(err) {
+          alert('Error al importar: ' + err.message);
+        }
+      };
+      reader.readAsText(file);
+    };
+    inp.click();
+  }
+
   function openDirectoryModal() {
     document.getElementById('dir-search').value = '';
     document.getElementById('person-form').style.display = 'none';
@@ -3663,6 +3748,29 @@ _Nosh Boutique Catering · +1 (408) 506-0588_`;
   ['directory-modal','picker-modal','edit-staff-modal'].forEach(id => {
     document.getElementById(id).addEventListener('click', function(e) {
       if (e.target === this) this.classList.remove('open');
+    });
+  });
+
+  // ── Auto-tab en campos de hora ─────────────────────────────────────
+  document.querySelectorAll('.tp-h').forEach(el => {
+    el.addEventListener('input', function() {
+      const v = parseInt(this.value);
+      // Si ya tiene 2 dígitos, o el dígito ingresado es 2-9 (solo puede ser 1 dígito), pasar a minutos
+      if (this.value.length >= 2 || (this.value.length === 1 && v >= 2 && v <= 9)) {
+        const pill = this.closest('.time-pill');
+        const mInput = pill.querySelector('.tp-m');
+        mInput.focus(); mInput.select();
+      }
+    });
+    el.addEventListener('blur', function() {
+      const v = parseInt(this.value);
+      if (!isNaN(v)) this.value = Math.min(Math.max(v, 1), 12);
+    });
+  });
+  document.querySelectorAll('.tp-m').forEach(el => {
+    el.addEventListener('blur', function() {
+      const v = parseInt(this.value);
+      if (!isNaN(v)) this.value = String(Math.min(Math.max(v, 0), 59)).padStart(2, '0');
     });
   });
 
