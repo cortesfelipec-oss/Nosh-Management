@@ -6,6 +6,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Nosh Management</title>
 
+  <!-- ── FIREBASE SDK ── -->
+  <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js"></script>
+
   <!-- ── FAVICON embebido (sin archivos externos) ── -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%235eccc8'/%3E%3Ctext x='32' y='46' font-family='Arial Black,Arial' font-weight='900' font-size='38' text-anchor='middle' fill='white'%3EN%3C/text%3E%3C/svg%3E">
   <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%235eccc8'/%3E%3Ctext x='32' y='46' font-family='Arial Black,Arial' font-weight='900' font-size='38' text-anchor='middle' fill='white'%3EN%3C/text%3E%3C/svg%3E">
@@ -1499,7 +1503,20 @@
   // TODO: upgrade a WhatsApp Business API para botones interactivos + auto-confirmación
   const NOSH_WA_NUMBER = '14085060588';
 
+  // ── FIREBASE ───────────────────────────────────────────────────────
+  firebase.initializeApp({
+    apiKey:            "AIzaSyAYhQcZ6YYvVsUrqT5Fz7x8dYF1HQ4mkLc",
+    authDomain:        "nosh-management.firebaseapp.com",
+    projectId:         "nosh-management",
+    storageBucket:     "nosh-management.firebasestorage.app",
+    messagingSenderId: "710382140906",
+    appId:             "1:710382140906:web:fe0856555e972f43268693"
+  });
+  const db = firebase.firestore();
+  const STATE_REF = db.collection('nosh').doc('state');
+
   // ── STATE ──────────────────────────────────────────────────────────
+  // Carga desde localStorage como caché mientras Firestore responde
   let state = JSON.parse(localStorage.getItem('event-staff-app') || '{"events":{}}');
   let currentEventId = null;
   let currentTab = 'planeacion';
@@ -2031,6 +2048,8 @@
 
   function save() {
     localStorage.setItem('event-staff-app', JSON.stringify(state));
+    STATE_REF.set(JSON.parse(JSON.stringify(state)))
+      .catch(e => console.warn('Firestore write error:', e));
   }
 
   // ── Helpers hora 12h ↔ 24h ────────────────────────────────────────
@@ -3783,8 +3802,31 @@ _Nosh Boutique Catering · +1 (408) 506-0588_`;
 
   // ── INIT ──────────────────────────────────────────────────────────────
   updateRoleSelect();
+
+  // Render inmediato desde caché local mientras carga Firestore
   renderEventList();
   if (!Object.keys(state.events).length) showEmpty();
+
+  // Sincronización en tiempo real con Firestore
+  STATE_REF.onSnapshot(snap => {
+    if (!snap.exists) {
+      // Primera vez — guardar estado actual en Firestore
+      save();
+      return;
+    }
+    const remote = snap.data();
+    if (!snap.metadata.hasPendingWrites) {
+      // Actualización remota (otro dispositivo) — sincronizar
+      state = remote;
+      localStorage.setItem('event-staff-app', JSON.stringify(state));
+      renderEventList();
+      if (currentEventId && state.events[currentEventId]) {
+        renderEventDetail();
+      } else if (!currentEventId && Object.keys(state.events).length === 0) {
+        showEmpty();
+      }
+    }
+  }, err => console.warn('Firestore sync error:', err));
 </script>
 </body>
 </html>
