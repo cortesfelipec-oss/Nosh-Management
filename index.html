@@ -94,37 +94,30 @@
       display: flex; flex-direction: column; gap: 1px;
     }
     header h1 {
-      font-size: 1.55rem; font-weight: 800;
+      font-size: 1.8rem; font-weight: 800;
       letter-spacing: -0.02em;
-      background: linear-gradient(110deg, #0d1f2d 0%, #0d2a2e 40%, #1a4a45 70%, #2a7a72 100%);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      background-clip: text;
+      color: #ffffff;
     }
     header .header-subtitle {
-      font-size: 0.88rem; font-weight: 600; letter-spacing: 0.02em;
-      background: linear-gradient(110deg, #0d1f2d 0%, #1a4a45 100%);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      background-clip: text;
+      font-size: 0.95rem; font-weight: 500; letter-spacing: 0.03em;
+      color: rgba(255,255,255,0.85);
     }
     .header-dir-btn {
       background: none; border: none; cursor: pointer;
-      font-size: 0.75rem; font-weight: 600;
-      display: flex; align-items: center; gap: 4px;
+      font-size: 0.82rem; font-weight: 600;
+      display: flex; align-items: center; gap: 5px;
       padding: 5px 8px; border-radius: 6px;
       transition: opacity 0.2s;
       font-family: inherit; white-space: nowrap;
       position: absolute; top: 8px; right: 12px;
-      background: linear-gradient(110deg, #0d1f2d 0%, #1a4a45 100%);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      background-clip: text;
+      color: rgba(255,255,255,0.9);
     }
     .header-dir-btn:hover { opacity: 0.7; }
     .sidebar-header .btn-primary {
       background: none !important; box-shadow: none !important; border: none;
-      font-size: 0.78rem; font-weight: 700; padding: 6px 4px;
-      background: linear-gradient(110deg, #0d1f2d 0%, #1a4a45 100%) !important;
-      -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important;
-      background-clip: text !important;
+      font-size: 0.82rem; font-weight: 700; padding: 6px 4px;
+      color: var(--accent) !important;
+      -webkit-text-fill-color: var(--accent) !important;
     }
     .sidebar-header .btn-primary:hover { opacity: 0.7; transform: none; box-shadow: none !important; }
 
@@ -980,13 +973,14 @@
       .app { flex-direction: column; height: auto; min-height: calc(100vh - 56px); }
 
       /* ── Header ── */
-      header { height: 56px; padding: 0 14px; gap: 10px; }
+      header { height: 62px; padding: 0 14px; gap: 10px; }
       .nosh-logo { padding: 5px 11px 6px; }
       .nosh-logo .nl-name { font-size: 1.2rem; }
       .nosh-logo .nl-sub  { font-size: 0.52rem; }
-      header h1 { font-size: 0.88rem; }
-      header .header-subtitle { display: none; }
+      header h1 { font-size: 1.15rem; }
+      header .header-subtitle { font-size: 0.72rem; }
       header .header-divider { display: none; }
+      .header-dir-btn { font-size: 0.72rem; top: 6px; right: 8px; }
 
       /* ── Sidebar — horizontal strip ── */
       .sidebar {
