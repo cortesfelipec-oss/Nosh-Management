@@ -976,36 +976,35 @@
       .menu-col { width: 100% !important; }
       .menu-btn { width: 100%; }
 
-      /* ── Modal — bottom sheet con scroll completo ── */
+      /* ── Modal móvil: centrado con scroll interno confiable ── */
       .modal-overlay {
-        align-items: flex-end;
-        padding: 0;
+        align-items: center;
+        justify-content: center;
+        padding: 12px;
       }
       .modal {
         width: 100% !important;
         max-width: 100% !important;
-        max-height: 92vh;
-        overflow-y: auto;
+        max-height: 80vh;
+        overflow-y: scroll;
         -webkit-overflow-scrolling: touch;
-        overscroll-behavior: contain;
-        border-radius: 18px 18px 0 0;
-        padding: 18px 14px 36px;
+        border-radius: 14px;
+        padding: 16px 14px 24px;
         border-top: 3px solid #5eccc8;
       }
-      /* Compactar formulario dentro del modal en móvil */
-      .modal h3 { font-size: 1rem; margin-bottom: 14px; }
-      .modal .form-group { margin-bottom: 10px; }
-      .modal .form-group label { font-size: 0.7rem; margin-bottom: 4px; }
+      /* Compactar formulario en móvil */
+      .modal h3 { font-size: 1rem; margin-bottom: 12px; }
+      .modal .form-group { margin-bottom: 8px; }
+      .modal .form-group label { font-size: 0.68rem; margin-bottom: 2px; }
       .modal .form-group input,
-      .modal .form-group select,
-      .modal .form-group textarea { padding: 9px 11px; font-size: 0.9rem; }
-      .modal .form-group textarea { min-height: 50px; }
+      .modal .form-group select { padding: 8px 10px; font-size: 0.88rem; }
+      .modal .form-group textarea { padding: 8px 10px; font-size: 0.88rem; min-height: 45px; }
       .modal-actions {
         flex-direction: column-reverse;
-        gap: 10px;
-        margin-top: 14px;
+        gap: 8px;
+        margin-top: 10px;
       }
-      .modal-actions button { width: 100%; padding: 13px; font-size: 1rem; }
+      .modal-actions button { width: 100%; padding: 12px; font-size: 0.95rem; }
 
       /* ── Insumos ── */
       .insumos-grid { grid-template-columns: 1fr !important; }
@@ -1992,10 +1991,12 @@
     onEventTypeChange(ev.eventType, ev.eventSubtype);
     document.getElementById('event-modal').dataset.editId = id || '';
     document.getElementById('event-modal').classList.add('open');
+    document.body.style.overflow = 'hidden';
   }
 
   function closeEventModal() {
     document.getElementById('event-modal').classList.remove('open');
+    document.body.style.overflow = '';
   }
 
   function onEventTypeChange(type, subtype) {
