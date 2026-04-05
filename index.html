@@ -885,11 +885,37 @@
       height: 1px; background: var(--border); margin: 4px 0;
     }
 
+    /* ── PDF OVERLAY (vista previa pantalla completa) ── */
+    #pdf-overlay {
+      display: none; position: fixed; inset: 0; z-index: 9999;
+      background: #fff; overflow-y: auto; overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+    }
+    #pdf-overlay.open { display: block; }
+    .pdf-overlay-bar {
+      position: sticky; top: 0; z-index: 1;
+      background: #fff; border-bottom: 1px solid #ddd;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 16px; gap: 10px;
+    }
+    .pdf-overlay-bar button {
+      font-family: inherit; font-size: 0.82rem; font-weight: 600;
+      border: none; cursor: pointer; border-radius: 7px; padding: 7px 14px;
+    }
+    .pdf-overlay-close { background: #f1f5f9; color: #333; }
+    .pdf-overlay-print { background: var(--accent); color: #fff; }
+    #pdf-overlay-content { padding: 0; }
+    @media print {
+      .pdf-overlay-bar { display: none !important; }
+      #pdf-overlay { overflow: visible !important; }
+    }
+
     /* ── PRINT DOCUMENT ── */
     #print-doc { display: none; }
 
     @media print {
-      .app-shell, .modal-overlay { display: none !important; }
+      .app-shell, .modal-overlay, #pdf-overlay:not(.open) { display: none !important; }
+      #pdf-overlay.open { position: static !important; overflow: visible !important; }
       #print-doc {
         display: block !important;
         font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -3262,14 +3288,13 @@ _Nosh Boutique Catering · +1 (408) 506-0588_`;
     const ev = state.events[currentEventId];
     const clHtml = document.getElementById('checklist-root').innerHTML;
     const dateStr = ev.date ? new Date(ev.date + 'T12:00:00').toLocaleDateString('es-MX', { day:'2-digit', month:'long', year:'numeric' }) : '';
-    document.getElementById('print-doc').innerHTML = `
+    openPdfOverlay(`
       <div class="pd-page">
         <div class="pd-brand">Nosh Boutique Catering</div>
         <h1 class="pd-title">Checklist Operativo</h1>
         <div class="pd-meta">${ev.name || ''}${dateStr ? ' · ' + dateStr : ''}${ev.location ? ' · ' + ev.location : ''}${ev.attendees ? ' · ' + ev.attendees + ' personas' : ''}</div>
         ${clHtml}
-      </div>`;
-    setTimeout(() => { window.print(); document.getElementById('print-doc').innerHTML = ''; }, 120);
+      </div>`);
   }
 
   function printCocina() {
@@ -3300,7 +3325,7 @@ _Nosh Boutique Catering · +1 (408) 506-0588_`;
       </table>`;
     };
 
-    document.getElementById('print-doc').innerHTML = `
+    openPdfOverlay(`
       <div class="pd-page">
         <div class="pd-brand">Nosh Boutique Catering</div>
         <h1 class="pd-title">Cocina</h1>
@@ -3309,8 +3334,7 @@ _Nosh Boutique Catering · +1 (408) 506-0588_`;
         ${makeTable(cocina.electrodomestico)}
         <div class="pd-section-title">🔪 Equipamiento</div>
         ${makeTable(cocina.equipamiento)}
-      </div>`;
-    setTimeout(() => { window.print(); document.getElementById('print-doc').innerHTML = ''; }, 120);
+      </div>`);
   }
 
   function printMenu() {
@@ -3546,12 +3570,16 @@ _Nosh Boutique Catering · +1 (408) 506-0588_`;
           We only offer items from the ocean as approved by the Monterey Bay Aquarium's Seafood Watch List.
         </div>
 
-      </div></body></html>`;
+      </div>
+      <div style="text-align:center;padding:16px;display:flex;gap:10px;justify-content:center;">
+        <button onclick="window.close()" style="font-size:0.85rem;padding:9px 20px;border-radius:8px;border:1px solid #ccc;background:#f1f5f9;cursor:pointer;font-family:inherit;">← Cerrar</button>
+        <button onclick="window.print()" style="font-size:0.85rem;padding:9px 20px;border-radius:8px;border:none;background:#1a9e99;color:#fff;cursor:pointer;font-family:inherit;">🖨️ Imprimir</button>
+      </div>
+      </body></html>`;
 
     const w = window.open('', '_blank', 'width=800,height=900');
     w.document.write(menuHtml);
     w.document.close();
-    setTimeout(() => { w.print(); }, 400);
   }
 
   // ── UTILS ─────────────────────────────────────────────────────────────
@@ -3860,6 +3888,33 @@ _Nosh Boutique Catering · +1 (408) 506-0588_`;
       }
     }
   }, err => console.warn('Firestore sync error:', err));
+  // ── PDF OVERLAY ───────────────────────────────────────────────────────
+  function openPdfOverlay(html) {
+    document.getElementById('pdf-overlay-content').innerHTML = html;
+    document.getElementById('pdf-overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closePdfOverlay() {
+    document.getElementById('pdf-overlay').classList.remove('open');
+    document.getElementById('pdf-overlay-content').innerHTML = '';
+    document.body.style.overflow = '';
+  }
+
+  function printFromOverlay() {
+    window.print();
+  }
+
 </script>
+
+<!-- PDF OVERLAY -->
+<div id="pdf-overlay">
+  <div class="pdf-overlay-bar">
+    <button class="pdf-overlay-close" onclick="closePdfOverlay()">← Cerrar</button>
+    <button class="pdf-overlay-print" onclick="printFromOverlay()">🖨️ Imprimir</button>
+  </div>
+  <div id="pdf-overlay-content"></div>
+</div>
+
 </body>
 </html>
