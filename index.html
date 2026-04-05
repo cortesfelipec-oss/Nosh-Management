@@ -94,28 +94,39 @@
       display: flex; flex-direction: column; gap: 1px;
     }
     header h1 {
-      font-size: 1.25rem; font-weight: 800;
+      font-size: 1.55rem; font-weight: 800;
       letter-spacing: -0.02em;
       background: linear-gradient(110deg, #0d1f2d 0%, #0d2a2e 40%, #1a4a45 70%, #2a7a72 100%);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
       background-clip: text;
     }
     header .header-subtitle {
-      font-size: 0.72rem; font-weight: 600; letter-spacing: 0.02em;
+      font-size: 0.88rem; font-weight: 600; letter-spacing: 0.02em;
       background: linear-gradient(110deg, #0d1f2d 0%, #1a4a45 100%);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
       background-clip: text;
     }
     .header-dir-btn {
-      background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.3); cursor: pointer;
-      color: #fff; font-size: 0.72rem; font-weight: 600;
+      background: none; border: none; cursor: pointer;
+      font-size: 0.75rem; font-weight: 600;
       display: flex; align-items: center; gap: 4px;
-      padding: 5px 10px; border-radius: 6px;
-      transition: color 0.2s, background 0.2s;
+      padding: 5px 8px; border-radius: 6px;
+      transition: opacity 0.2s;
       font-family: inherit; white-space: nowrap;
       position: absolute; top: 8px; right: 12px;
+      background: linear-gradient(110deg, #0d1f2d 0%, #1a4a45 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
-    .header-dir-btn:hover { background: rgba(255,255,255,0.28); }
+    .header-dir-btn:hover { opacity: 0.7; }
+    .sidebar-header .btn-primary {
+      background: none !important; box-shadow: none !important; border: none;
+      font-size: 0.78rem; font-weight: 700; padding: 6px 4px;
+      background: linear-gradient(110deg, #0d1f2d 0%, #1a4a45 100%) !important;
+      -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important;
+      background-clip: text !important;
+    }
+    .sidebar-header .btn-primary:hover { opacity: 0.7; transform: none; box-shadow: none !important; }
 
     /* ── LAYOUT ── */
     .app { display: flex; height: calc(100vh - 62px); }
