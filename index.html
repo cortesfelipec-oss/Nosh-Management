@@ -63,6 +63,7 @@
       display: flex;
       align-items: center;
       gap: 20px;
+      position: relative;
     }
     header .brand { display: flex; align-items: center; gap: 14px; }
 
@@ -100,14 +101,15 @@
       font-size: 0.72rem; color: #94b8c0; font-weight: 400; letter-spacing: 0.02em;
     }
     .header-dir-btn {
-      background: none; border: none; cursor: pointer;
-      color: #7a9ab0; font-size: 0.72rem; font-weight: 500;
+      background: #1e293b; border: 1px solid #2d3f55; cursor: pointer;
+      color: #94a3b8; font-size: 0.72rem; font-weight: 600;
       display: flex; align-items: center; gap: 4px;
-      padding: 5px 8px; border-radius: 6px;
+      padding: 5px 10px; border-radius: 6px;
       transition: color 0.2s, background 0.2s;
-      font-family: inherit;
+      font-family: inherit; white-space: nowrap;
+      position: absolute; top: 8px; right: 12px;
     }
-    .header-dir-btn:hover { color: #cbd5e1; background: rgba(255,255,255,0.06); }
+    .header-dir-btn:hover { color: #cbd5e1; background: #263344; }
 
     /* ── LAYOUT ── */
     .app { display: flex; height: calc(100vh - 62px); }
@@ -1073,15 +1075,13 @@
     </div>
     <div class="header-divider"></div>
     <div class="header-app">
-      <h1>Staff Manager</h1>
+      <h1>Manager Management</h1>
       <span class="header-subtitle">Nosh Boutique Catering</span>
     </div>
   </div>
-  <div style="margin-left:auto;">
-    <button class="header-dir-btn" onclick="openDirectoryModal()">
-      🗂 <span>Directorio</span>
-    </button>
-  </div>
+  <button class="header-dir-btn" onclick="openDirectoryModal()">
+    🗂 Directorio
+  </button>
 </header>
 
 <div class="app">
