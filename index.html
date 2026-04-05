@@ -23,6 +23,7 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { overflow-x: hidden; }
 
     :root {
       --bg:       #f2fafa;
@@ -56,6 +57,7 @@
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
+      overflow-x: hidden;
     }
 
     /* ── HEADER ── */
@@ -98,30 +100,32 @@
       display: flex; flex-direction: column; gap: 1px;
     }
     header h1 {
-      font-size: 1.8rem; font-weight: 800;
-      letter-spacing: -0.02em;
-      color: #ffffff;
+      font-size: 1.8rem; font-weight: 800; letter-spacing: -0.02em;
+      background: linear-gradient(110deg, #0d1f2d 0%, #0d2a2e 40%, #1a4a45 70%, #2a7a72 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     }
     header .header-subtitle {
-      font-size: 0.95rem; font-weight: 500; letter-spacing: 0.03em;
-      color: rgba(255,255,255,0.85);
+      font-size: 0.95rem; font-weight: 600; letter-spacing: 0.02em;
+      background: linear-gradient(110deg, #0d1f2d 0%, #1a4a45 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     }
     .header-dir-btn {
       background: none; border: none; cursor: pointer;
-      font-size: 0.82rem; font-weight: 600;
+      font-size: 0.82rem; font-weight: 700;
       display: flex; align-items: center; gap: 5px;
       padding: 5px 8px; border-radius: 6px;
-      transition: opacity 0.2s;
-      font-family: inherit; white-space: nowrap;
+      transition: opacity 0.2s; font-family: inherit; white-space: nowrap;
       position: absolute; top: 8px; right: 12px;
-      color: rgba(255,255,255,0.9);
+      background: linear-gradient(110deg, #0d1f2d 0%, #1a4a45 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     }
     .header-dir-btn:hover { opacity: 0.7; }
     .sidebar-header .btn-primary {
       background: none !important; box-shadow: none !important; border: none;
       font-size: 0.82rem; font-weight: 700; padding: 6px 4px;
-      color: var(--accent) !important;
-      -webkit-text-fill-color: var(--accent) !important;
+      background: linear-gradient(110deg, #0d1f2d 0%, #1a4a45 100%) !important;
+      -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important;
+      background-clip: text !important;
     }
     .sidebar-header .btn-primary:hover { opacity: 0.7; transform: none; box-shadow: none !important; }
 
@@ -711,6 +715,13 @@
       color: var(--text);
     }
     .btn-outline:hover { border-color: #5eccc8; color: #1a9e99; background: var(--surface2); }
+    .btn-back-events { display: none; }
+    .btn-dark-grad {
+      background: linear-gradient(110deg, #0d1f2d 0%, #1a4a45 100%) !important;
+      -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important;
+      background-clip: text !important; border-color: var(--border) !important;
+    }
+    .btn-dark-grad:hover { opacity: 0.7; background: linear-gradient(110deg, #0d1f2d 0%, #1a4a45 100%) !important; }
     .btn-sm { padding: 7px 14px; font-size: 0.82rem; }
 
     /* ── MODAL ── */
@@ -986,6 +997,15 @@
       header .header-divider { display: none; }
       .header-dir-btn { font-size: 0.72rem; top: 6px; right: 8px; }
 
+      /* ── Ocultar sidebar cuando evento abierto ── */
+      .app.event-open .sidebar { display: none; }
+      .btn-back-events {
+        display: inline-flex; align-items: center; gap: 5px;
+        background: none; border: none; cursor: pointer;
+        font-size: 0.82rem; font-weight: 600; font-family: inherit;
+        color: var(--accent); padding: 6px 0 4px; margin-bottom: 2px;
+      }
+
       /* ── Sidebar — horizontal strip ── */
       .sidebar {
         width: 100%; height: auto; min-width: unset;
@@ -1112,10 +1132,11 @@
     </div>
     <div class="event-detail" id="event-detail" style="display:none;">
       <div class="detail-header">
+        <button class="btn-back-events" onclick="backToEvents()">← Eventos</button>
         <div class="dh-top">
           <h2 id="detail-name"></h2>
           <div class="detail-actions">
-            <button class="btn btn-outline btn-sm" onclick="openEventModal(currentEventId)">✏️ Editar</button>
+            <button class="btn btn-outline btn-sm btn-dark-grad" onclick="openEventModal(currentEventId)">✏️ Editar</button>
           </div>
         </div>
         <div class="dh-chips" id="dh-chips"></div>
@@ -2157,11 +2178,17 @@
     currentEventId = id;
     renderEventList();
     renderEventDetail();
+    document.querySelector('.app').classList.add('event-open');
   }
 
   function showEmpty() {
     document.getElementById('empty-state').style.display = 'flex';
     document.getElementById('event-detail').style.display = 'none';
+    document.querySelector('.app').classList.remove('event-open');
+  }
+
+  function backToEvents() {
+    document.querySelector('.app').classList.remove('event-open');
   }
 
   // ── RENDER SIDEBAR ──────────────────────────────────────────────────
