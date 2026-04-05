@@ -56,7 +56,7 @@
 
     /* ── HEADER ── */
     header {
-      background: #0d1f2d;
+      background: linear-gradient(110deg, #0d1f2d 0%, #0d2a2e 40%, #1a4a45 70%, #2a7a72 100%);
       border-bottom: 2px solid #5eccc8;
       padding: 0 28px;
       height: 62px;
@@ -1069,13 +1069,8 @@
 
 <header>
   <div class="brand">
-    <div class="nosh-logo">
-      <span class="nl-name">nosh</span>
-      <span class="nl-sub">boutique catering</span>
-    </div>
-    <div class="header-divider"></div>
     <div class="header-app">
-      <h1>Manager Management</h1>
+      <h1>Management</h1>
       <span class="header-subtitle">Nosh Boutique Catering</span>
     </div>
   </div>
@@ -1304,10 +1299,10 @@
   <div class="modal" style="width:620px;max-width:98vw;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;gap:8px;flex-wrap:wrap;">
       <h3>🗂 Directorio de Personal</h3>
-      <div style="display:flex;gap:6px;align-items:center;">
-        <button class="btn btn-sm" onclick="exportDirectory()" style="background:#1e293b;border:1px solid #2d3f55;color:#94a3b8;font-size:0.75rem;">⬇ Exportar</button>
-        <button class="btn btn-sm" onclick="importDirectory()" style="background:#1e293b;border:1px solid #2d3f55;color:#94a3b8;font-size:0.75rem;">⬆ Importar</button>
+      <div style="display:flex;gap:5px;align-items:center;">
         <button class="btn btn-primary btn-sm" onclick="openPersonForm()">+ Nueva persona</button>
+        <button class="btn btn-sm" onclick="exportDirectory()" style="background:#1e293b;border:1px solid #2d3f55;color:#94a3b8;font-size:0.68rem;padding:5px 8px;">⬇</button>
+        <button class="btn btn-sm" onclick="importDirectory()" style="background:#1e293b;border:1px solid #2d3f55;color:#94a3b8;font-size:0.68rem;padding:5px 8px;">⬆</button>
       </div>
     </div>
 
@@ -1319,16 +1314,6 @@
           <input type="text" id="dir-name" placeholder="Ej. Juan Pérez">
         </div>
         <div class="form-group" style="margin:0;">
-          <label>Rol / Puesto *</label>
-          <select id="dir-role">
-            <option value="">— Selecciona —</option>
-            <option>Lider</option><option>Mesero</option>
-            <option>Mesero-Conductor</option><option>Buser</option>
-            <option>Bartender</option><option>Barback</option>
-            <option>Chef</option><option>Cocinero</option>
-          </select>
-        </div>
-        <div class="form-group" style="margin:0;">
           <label>Teléfono</label>
           <input type="text" id="dir-phone" placeholder="Ej. 55 1234 5678">
         </div>
@@ -1337,7 +1322,7 @@
           <input type="email" id="dir-email" placeholder="Ej. juan@correo.com">
         </div>
         <div class="form-group" style="margin:0;">
-          <label>Talla de camisa</label>
+          <label>Talla de uniforme</label>
           <select id="dir-shirt">
             <option value="">— Sin especificar —</option>
             <option>XS</option><option>S</option><option>M</option>
@@ -3632,7 +3617,6 @@ _Nosh Boutique Catering · +1 (408) 506-0588_`;
     form.dataset.editId = id || '';
     const p = id ? getDirectory().find(p => p.id === id) : {};
     document.getElementById('dir-name').value  = p?.name  || '';
-    document.getElementById('dir-role').value  = p?.role  || '';
     document.getElementById('dir-phone').value = p?.phone || '';
     document.getElementById('dir-email').value = p?.email || '';
     document.getElementById('dir-shirt').value = p?.shirt || '';
@@ -3645,15 +3629,14 @@ _Nosh Boutique Catering · +1 (408) 506-0588_`;
 
   function savePerson() {
     const name = document.getElementById('dir-name').value.trim();
-    const role = document.getElementById('dir-role').value;
-    if (!name || !role) { alert('Nombre y rol son obligatorios.'); return; }
+    if (!name) { alert('El nombre es obligatorio.'); return; }
     const editId = document.getElementById('person-form').dataset.editId;
     const dir = getDirectory();
     if (editId) {
       const p = dir.find(p => p.id === editId);
-      if (p) { p.name = name; p.role = role; p.phone = document.getElementById('dir-phone').value.trim(); p.email = document.getElementById('dir-email').value.trim(); p.shirt = document.getElementById('dir-shirt').value; p.notes = document.getElementById('dir-notes').value.trim(); }
+      if (p) { p.name = name; p.phone = document.getElementById('dir-phone').value.trim(); p.email = document.getElementById('dir-email').value.trim(); p.shirt = document.getElementById('dir-shirt').value; p.notes = document.getElementById('dir-notes').value.trim(); }
     } else {
-      dir.push({ id: Date.now().toString(), name, role,
+      dir.push({ id: Date.now().toString(), name, role: '',
         phone: document.getElementById('dir-phone').value.trim(),
         email: document.getElementById('dir-email').value.trim(),
         shirt: document.getElementById('dir-shirt').value,
