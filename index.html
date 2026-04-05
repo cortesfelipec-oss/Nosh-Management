@@ -1,0 +1,3640 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nosh Management</title>
+
+  <!-- ── FAVICON embebido (sin archivos externos) ── -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%235eccc8'/%3E%3Ctext x='32' y='46' font-family='Arial Black,Arial' font-weight='900' font-size='38' text-anchor='middle' fill='white'%3EN%3C/text%3E%3C/svg%3E">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%235eccc8'/%3E%3Ctext x='32' y='46' font-family='Arial Black,Arial' font-weight='900' font-size='38' text-anchor='middle' fill='white'%3EN%3C/text%3E%3C/svg%3E">
+
+  <!-- ── PWA: instalable como app en escritorio/celular ── -->
+  <meta name="application-name" content="Nosh Management">
+  <meta name="apple-mobile-web-app-title" content="Nosh Management">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#5eccc8">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #f2fafa;
+      --surface:  #ffffff;
+      --surface2: #e8f8f7;
+      --surface3: #d4f2f0;
+      --border:   #b8e0de;
+      --accent:   #1a9e99;
+      --accent-hover: #158a85;
+      --accent-glow: rgba(26,158,153,0.12);
+      --nosh:     #5eccc8;
+      --teal:     #1a9e99;
+      --teal-dim: rgba(26,158,153,0.09);
+      --pink:     #dc2626;
+      --pink-dim: rgba(220,38,38,0.08);
+      --amber:    #d97706;
+      --amber-dim:rgba(217,119,6,0.08);
+      --sky:      #0891b2;
+      --sky-dim:  rgba(8,145,178,0.08);
+      --green:    #059669;
+      --orange:   #c2410c;
+      --text:     #0d1f2d;
+      --muted:    #4e6b7a;
+      --radius:   10px;
+    }
+
+    body {
+      font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+      font-size: 15px;
+      line-height: 1.55;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: #0d1f2d;
+      border-bottom: 2px solid #5eccc8;
+      padding: 0 28px;
+      height: 62px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    header .brand { display: flex; align-items: center; gap: 14px; }
+
+    /* Logo Nosh recreado en CSS */
+    .nosh-logo {
+      display: inline-flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      background: #5eccc8;
+      border: 1.5px solid rgba(255,255,255,0.55);
+      border-radius: 3px;
+      padding: 7px 18px 8px;
+      gap: 2px; line-height: 1; flex-shrink: 0;
+      text-decoration: none;
+    }
+    .nosh-logo .nl-name {
+      color: #fff; font-size: 1.55rem; font-weight: 800;
+      letter-spacing: -0.01em; font-family: 'Inter', sans-serif;
+    }
+    .nosh-logo .nl-sub {
+      color: rgba(255,255,255,0.9); font-size: 0.62rem; font-weight: 400;
+      letter-spacing: 0.09em; text-transform: lowercase;
+    }
+
+    header .header-divider {
+      width: 1px; height: 22px; background: #2d3f55; flex-shrink: 0;
+    }
+    header .header-app {
+      display: flex; flex-direction: column; gap: 1px;
+    }
+    header h1 {
+      font-size: 1.05rem; font-weight: 700;
+      color: #f1f5f9; letter-spacing: 0.01em;
+    }
+    header .header-subtitle {
+      font-size: 0.82rem; color: #94b8c0; font-weight: 400;
+    }
+
+    /* ── LAYOUT ── */
+    .app { display: flex; height: calc(100vh - 62px); }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: 230px;
+      min-width: 200px;
+      background: #ffffff;
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .sidebar-header {
+      padding: 12px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .sidebar-header input {
+      width: 100%;
+      padding: 8px 11px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-size: 0.84rem;
+      font-family: inherit;
+    }
+    .sidebar-header button { width: 100%; }
+    .sidebar-header input:focus { outline: none; border-color: var(--accent); }
+    .events-list { overflow-y: auto; flex: 1; padding: 10px; }
+
+    .event-card {
+      padding: 14px 16px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      background: var(--surface);
+    }
+    .event-card:hover { border-color: var(--accent); background: var(--surface2); box-shadow: 0 2px 8px rgba(26,158,153,0.08); }
+    .event-card.active {
+      background: #e6f9f8;
+      border-color: var(--accent);
+      border-left: 4px solid #5eccc8;
+      box-shadow: 0 2px 10px rgba(94,204,200,0.15);
+    }
+    .event-card .name { font-weight: 700; font-size: 1.02rem; }
+    .event-card .meta { font-size: 0.82rem; color: var(--muted); margin-top: 5px; display: flex; gap: 8px; flex-wrap: wrap; }
+    .event-card .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.68rem;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 999px;
+      margin-top: 7px;
+    }
+    .badge.confirmed { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+    .badge.pending   { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+    .event-card .delete-event {
+      position: absolute; top: 10px; right: 10px;
+      background: none; border: none;
+      color: var(--muted); cursor: pointer; font-size: 0.9rem;
+      opacity: 0; transition: opacity 0.2s, color 0.2s;
+    }
+    .event-card:hover .delete-event { opacity: 1; }
+    .event-card .delete-event:hover { color: var(--pink); }
+
+    /* ── MAIN ── */
+    .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+    .empty-state {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 8px;
+    }
+    .empty-state .icon { display: flex; align-items: center; justify-content: center; }
+    .empty-state p { color: var(--muted); font-size: 0.82rem; }
+
+    /* ── EVENT DETAIL ── */
+    .event-detail { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+    .detail-header {
+      padding: 22px 28px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: flex-start; gap: 16px; flex-wrap: wrap;
+      background: var(--surface);
+    }
+    .detail-header .info { flex: 1; }
+    .detail-header h2 {
+      font-size: 1.45rem; font-weight: 700; letter-spacing: -0.01em;
+      color: var(--text);
+    }
+    .detail-header .meta-row { display: flex; gap: 0; margin-top: 8px; flex-wrap: wrap; }
+    .detail-header .meta-item {
+      font-size: 0.78rem;
+      padding: 4px 10px; border-radius: 999px; margin-right: 6px; margin-bottom: 4px;
+      border: 1px solid transparent;
+    }
+    .detail-header .meta-item span { font-weight: 600; }
+
+    /* Fecha */
+    .detail-header .meta-item:nth-child(1) { background: #f0fafa; color: #1a9e99; border-color: #a8e6e4; }
+    .detail-header .meta-item:nth-child(1) span { color: #0d6e6a; }
+    /* Lugar */
+    .detail-header .meta-item:nth-child(2) { background: #f0fdf4; color: #166534; border-color: #bbf7d0; }
+    .detail-header .meta-item:nth-child(2) span { color: #14532d; }
+    /* Personas */
+    .detail-header .meta-item:nth-child(3) { background: #f0f9ff; color: #075985; border-color: #bae6fd; }
+    .detail-header .meta-item:nth-child(3) span { color: #0c4a6e; }
+    /* Notas */
+    #detail-notes-row .meta-item { background: #fffbeb; color: #92400e; border-color: #fde68a; }
+    #detail-notes-row .meta-item span { color: #78350f; }
+    .detail-actions { display: flex; gap: 8px; }
+
+    /* ── TABS ── */
+    .tabs {
+      display: flex; border-bottom: 1px solid var(--border); padding: 0 24px;
+      background: var(--surface);
+    }
+    .tab {
+      padding: 14px 22px; cursor: pointer; font-size: 0.9rem; font-weight: 600;
+      color: var(--muted); border-bottom: 2.5px solid transparent;
+      transition: color 0.2s, border-color 0.2s; letter-spacing: 0.01em;
+    }
+    .tab.active { color: var(--accent); border-color: #5eccc8; }
+    .tab:hover:not(.active) { color: var(--text); }
+
+    /* ── STAFF PANEL ── */
+    .staff-panel { flex: 1; overflow-y: auto; padding: 0 24px 24px; }
+    .plan-info-card { background:var(--surface); border:1.5px solid var(--border); border-radius:10px; padding:14px 16px; }
+    .plan-info-label { font-size:0.75rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; margin-bottom:4px; }
+    .plan-info-value { font-size:1rem; font-weight:600; color:var(--text); }
+    .menu-btn { padding:7px 14px; border:1.5px solid var(--border); border-radius:20px; background:transparent; color:var(--text); font-size:0.82rem; font-weight:500; cursor:pointer; transition:all .15s; }
+    .menu-btn:hover:not([disabled]) { border-color:var(--text); color:var(--text); }
+    .menu-btn-active { background:transparent !important; border-color:var(--text) !important; color:var(--text) !important; }
+    .glass-pill { display:inline-flex;align-items:center;gap:6px;background:transparent;border:1px solid var(--border);color:var(--text);border-radius:7px;padding:5px 8px 5px 12px;font-size:0.82rem;font-weight:600; }
+    .glass-pill input { width:40px;text-align:center;font-size:0.82rem;font-weight:700;border:none;border-radius:4px;padding:2px 4px;background:transparent;color:var(--text);outline:none; }
+    .glass-pill button { background:none;border:none;cursor:pointer;color:var(--text);opacity:0.5;font-size:0.9rem;line-height:1;padding:0 2px;margin-left:2px; }
+    .glass-pill button:hover { opacity:1; }
+    .menu-section-btn { width:100%; display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:var(--bg); border:1.5px solid var(--border); border-radius:8px; cursor:pointer; font-size:0.85rem; font-weight:600; color:var(--text); transition:border-color .15s; }
+    .menu-section-btn:hover { border-color:var(--teal); }
+    .menu-col { display:flex; flex-direction:column; align-items:flex-start; }
+    .qty-btn { width:26px;height:26px;border:1.5px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);font-size:1rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;transition:border-color .15s; }
+    .qty-btn:hover { border-color:var(--teal);color:var(--teal); }
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; margin:0; }
+    input[type=number] { -moz-appearance:textfield; }
+    .menu-option-row { display:flex; flex-direction:column; align-items:flex-start; width:100%; padding:10px 14px; background:var(--bg); border:1.5px solid var(--border); border-radius:8px; cursor:pointer; text-align:left; transition:border-color .15s; }
+    .menu-option-row:hover { border-color:var(--teal); }
+    .menu-option-active { border-color:var(--teal) !important; background:var(--teal-dim, #e6f7f6) !important; }
+    .menu-option-active span:first-child { color:var(--teal); }
+
+    /* ── SUB-TABS ── */
+    .sub-tabs {
+      display: flex; gap: 6px;
+      padding: 16px 0 14px; border-bottom: 1px solid var(--border);
+      margin-bottom: 20px; flex-wrap: wrap;
+    }
+    .sub-tab {
+      padding: 8px 18px; border-radius: 999px; font-size: 0.86rem; font-weight: 600;
+      cursor: pointer; border: 1px solid var(--border); color: var(--muted);
+      background: var(--surface2); transition: all 0.2s;
+    }
+    .sub-tab:hover { background: var(--surface3); border-color: var(--accent); color: var(--text); }
+    .sub-tab.active { color: inherit; }
+
+    /* Sub-pestaña activa */
+    #scat-staff.active        { background: linear-gradient(135deg,#5eccc8,#1a9e99); color:#fff; border-color:transparent; box-shadow:0 2px 8px rgba(26,158,153,0.25); }
+    #scat-cocina.active       { background: linear-gradient(135deg,#5eccc8,#1a9e99); color:#fff; border-color:transparent; box-shadow:0 2px 8px rgba(26,158,153,0.25); }
+    #scat-suplementos.active  { background: linear-gradient(135deg,#5eccc8,#1a9e99); color:#fff; border-color:transparent; box-shadow:0 2px 8px rgba(26,158,153,0.25); }
+    /* ── BAR INNER TABS ── */
+    .bar-inner-tabs {
+      display: flex; gap: 6px;
+      padding: 14px 0 12px; margin-bottom: 16px;
+      border-bottom: 1px solid var(--border); flex-wrap: wrap;
+    }
+    .bar-inner-tab {
+      padding: 8px 18px; border-radius: 999px;
+      font-size: 0.86rem; font-weight: 600; cursor: pointer;
+      border: 1px solid var(--border); color: var(--muted);
+      background: var(--surface2); transition: all 0.2s;
+    }
+    .bar-inner-tab:hover { color: var(--text); border-color: var(--accent); background: var(--surface3); }
+    .bar-inner-tab.active {
+      background: linear-gradient(135deg, #5eccc8, #1a9e99);
+      color: #fff; border-color: transparent;
+      box-shadow: 0 2px 8px rgba(26,158,153,0.25);
+    }
+
+    /* ── UNIFORMES TABLE ── */
+    .uniform-table {
+      width: 100%; border-collapse: collapse;
+      font-size: 0.84rem;
+    }
+    .uniform-table thead tr {
+      background: var(--surface2);
+      border-bottom: 2px solid var(--border);
+    }
+    .uniform-table th {
+      padding: 9px 14px; text-align: left;
+      font-size: 0.75rem; font-weight: 700;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--muted);
+    }
+    .uniform-table tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+    .uniform-table tbody tr:hover { background: var(--surface2); }
+    .uniform-table td {
+      padding: 9px 14px; vertical-align: middle;
+    }
+    .uniform-table td .av-sm {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px; border-radius: 50%;
+      font-size: 0.78rem; font-weight: 700;
+      margin-right: 8px; flex-shrink: 0;
+    }
+    .uniform-table td .cell-name {
+      display: flex; align-items: center;
+    }
+    .uniform-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+    .uniform-chip-item {
+      display: inline-block; padding: 3px 10px;
+      border-radius: 999px; font-size: 0.75rem; font-weight: 600;
+      background: var(--surface3); color: var(--teal);
+      border: 1px solid var(--border);
+    }
+    .uniform-chip-talla {
+      display: inline-block; padding: 2px 8px;
+      border-radius: 999px; font-size: 0.75rem; font-weight: 700;
+      background: var(--surface3); color: var(--accent);
+      border: 1px solid var(--border); letter-spacing: 0.03em;
+    }
+    .uniform-empty {
+      color: var(--muted); text-align: center; padding: 48px;
+    }
+
+    /* ── INSUMOS ── */
+    .insumos-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 14px; gap: 12px; flex-wrap: wrap;
+    }
+    .insumos-email-row {
+      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    }
+    .insumos-email-row input {
+      padding: 6px 10px; border-radius: var(--radius);
+      border: 1px solid var(--border); background: var(--surface);
+      color: var(--text); font-size: 0.82rem; width: 240px;
+    }
+    .insumos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 14px; margin-top: 16px;
+    }
+    .insumo-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      display: flex; flex-direction: column; gap: 10px;
+      position: relative; transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .insumo-card.low-stock {
+      border-color: var(--pink);
+      box-shadow: 0 0 0 2px rgba(220,38,38,0.10);
+    }
+    .insumo-card .idel {
+      position: absolute; top: 8px; right: 8px;
+      background: none; border: none; cursor: pointer;
+      font-size: 0.85rem; opacity: 0.4; transition: opacity 0.2s;
+      padding: 2px 5px;
+    }
+    .insumo-card .idel:hover { opacity: 1; }
+    .insumo-name {
+      font-weight: 700; font-size: 0.9rem;
+      color: var(--text); padding-right: 20px;
+    }
+    .insumo-stock-bar-bg {
+      height: 6px; border-radius: 999px;
+      background: var(--surface3); overflow: hidden;
+    }
+    .insumo-stock-bar-fill {
+      height: 100%; border-radius: 999px;
+      background: var(--accent); transition: width 0.3s, background 0.3s;
+    }
+    .insumo-stock-bar-fill.low  { background: var(--amber); }
+    .insumo-stock-bar-fill.crit { background: var(--pink); }
+    .insumo-counters {
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .insumo-stock-label {
+      font-size: 0.82rem; color: var(--muted);
+    }
+    .insumo-stock-label strong { color: var(--text); font-size: 1rem; }
+    .insumo-alert-badge {
+      font-size: 0.72rem; font-weight: 700;
+      background: var(--pink-dim); color: var(--pink);
+      border-radius: 999px; padding: 2px 8px;
+    }
+    .insumo-btns {
+      display: flex; gap: 6px;
+    }
+    .insumo-btn {
+      flex: 1; padding: 6px 0; border-radius: var(--radius);
+      border: 1px solid var(--border); background: var(--surface2);
+      color: var(--text); font-size: 0.85rem; font-weight: 700;
+      cursor: pointer; transition: background 0.15s, border-color 0.15s;
+    }
+    .insumo-btn:hover { background: var(--surface3); border-color: var(--accent); }
+    .insumo-btn.use   { background: var(--pink-dim); border-color: var(--pink); color: var(--pink); }
+    .insumo-btn.use:hover { background: var(--pink); color: #fff; }
+    .insumo-btn.add   { background: var(--teal-dim); border-color: var(--accent); color: var(--accent); }
+    .insumo-btn.add:hover { background: var(--accent); color: #fff; }
+    .low-stock-banner {
+      background: var(--pink-dim); border: 1px solid var(--pink);
+      border-radius: var(--radius); padding: 10px 16px;
+      color: var(--pink); font-size: 0.83rem; font-weight: 600;
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    /* ── ADD FORM ── */
+    .add-staff-form {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      border-left: 3px solid #1a9e99;
+      padding: 14px 16px;
+      margin-bottom: 20px;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr auto auto;
+      gap: 10px;
+      align-items: end;
+    }
+    .add-staff-form label {
+      font-size: 0.68rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.06em; color: var(--muted); display: block; margin-bottom: 4px;
+    }
+    .add-staff-form input,
+    .add-staff-form select {
+      width: 100%; padding: 8px 10px;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: var(--radius); color: var(--text); font-size: 0.84rem; font-family: inherit;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .add-staff-form input:focus,
+    .add-staff-form select:focus { outline: none; border-color: #1a9e99; box-shadow: 0 0 0 2px rgba(26,158,153,0.12); }
+
+    /* ── ROLE GROUPS ── */
+    .role-group { margin-bottom: 28px; }
+    .role-group-header {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+    }
+    .role-group-header h3 {
+      font-size: 0.72rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted);
+    }
+    .role-group-header .count {
+      font-size: 0.7rem; font-weight: 700;
+      background: var(--surface3); border: 1px solid var(--border);
+      padding: 2px 8px; border-radius: 999px; color: var(--accent);
+    }
+    .role-group-header::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+
+    /* ── STAFF CARDS ── */
+    .staff-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+      gap: 8px;
+    }
+    .staff-card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .staff-card:hover { border-color: #94a3b8; box-shadow: 0 1px 4px rgba(15,23,42,0.06); }
+
+    /* Fila superior: avatar + nombre + acciones */
+    .staff-card .sc-top {
+      display: flex; align-items: center; gap: 10px;
+      padding: 11px 14px 10px;
+      background: #f8fafc;
+      border-bottom: 1px solid var(--border);
+    }
+    .staff-card .av {
+      width: 36px; height: 36px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 0.88rem; flex-shrink: 0;
+      background: linear-gradient(135deg, #5eccc8, #1a9e99); color: #fff;
+      letter-spacing: 0.01em;
+    }
+    .staff-card .sname {
+      flex: 1; font-weight: 700; font-size: 0.98rem;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      color: var(--text);
+    }
+    .staff-card .actions {
+      display: flex; align-items: center; gap: 3px; flex-shrink: 0;
+    }
+
+    /* Fila inferior: rol + contacto */
+    .staff-card .sc-bottom {
+      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+      padding: 7px 14px 10px;
+      background: #ffffff;
+    }
+    .staff-card .sc-bottom .sc-divider {
+      color: var(--border); font-size: 0.7rem; user-select: none;
+    }
+    .staff-card .sc-bottom .sc-text {
+      font-size: 0.72rem; color: var(--muted); white-space: nowrap;
+    }
+    .staff-card .smeta-contact .chip-shirt {
+      background: #fef3c7; color: #92400e; border: 1px solid #fde68a;
+      padding: 2px 8px; border-radius: 999px; font-size: 0.62rem; font-weight: 600;
+    }
+    .role-tag {
+      display: inline-block; font-size: 0.63rem; font-weight: 600;
+      padding: 2px 8px; border-radius: 999px;
+    }
+
+
+    /* Status badges */
+    .status-badge {
+      display: inline-flex; align-items: center; gap: 3px;
+      padding: 2px 9px; border-radius: 999px;
+      font-size: 0.63rem; font-weight: 600;
+      cursor: pointer; border: 1px solid transparent;
+      transition: opacity 0.15s; white-space: nowrap;
+    }
+    .status-badge:hover { opacity: 0.75; }
+    .status-confirmed { background: #d1fae5; color: #065f46; border-color: #a7f3d0; }
+    .status-pending   { background: #fef3c7; color: #92400e; border-color: #fde68a; }
+    .status-declined  { background: #fee2e2; color: #991b1b; border-color: #fecaca; }
+
+    .btn-icon {
+      background: none; border: none; cursor: pointer;
+      color: var(--muted); font-size: 0.9rem;
+      padding: 3px 6px; border-radius: 6px; transition: color 0.2s, background 0.2s;
+    }
+    .btn-icon:hover { color: var(--pink); background: var(--pink-dim); }
+    .btn-wa { display: inline-flex; align-items: center; justify-content: center; }
+    .btn-wa:hover { background: #e8fdf0 !important; }
+
+    /* ── BAR ITEMS CARDS ── */
+    .bar-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 10px;
+    }
+    .bar-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      position: relative;
+    }
+    .bar-card:hover { border-color: var(--accent); }
+    .bar-card .bname { font-weight: 600; font-size: 0.88rem; padding-right: 24px; line-height: 1.3; }
+    .bar-card .bqty {
+      font-size: 1.2rem; font-weight: 700; color: var(--text); line-height: 1;
+    }
+    .bar-card .bunit { font-size: 0.72rem; color: var(--muted); margin-top: -2px; }
+    .bar-card .bdel {
+      position: absolute; top: 8px; right: 8px;
+      background: none; border: none; cursor: pointer;
+      color: var(--muted); font-size: 0.85rem; opacity: 0;
+      transition: opacity 0.2s, color 0.2s;
+    }
+    .bar-card:hover .bdel { opacity: 1; }
+    .bar-card .bdel:hover { color: var(--pink); }
+
+    /* ── CHECKLIST ── */
+    .checklist-panel { flex: 1; overflow-y: auto; padding: 24px; }
+
+    .cl-progress-wrap {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 18px 20px; margin-bottom: 24px;
+    }
+    .cl-progress-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+    .cl-progress-top .title { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+    .cl-progress-top .pct { font-size: 1.9rem; font-weight: 800; color: var(--teal); }
+    .cl-progress-bar-bg { height: 10px; background: var(--border); border-radius: 999px; overflow: hidden; }
+    .cl-progress-bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #5eccc8, #1a9e99); transition: width 0.4s ease; }
+
+    .cl-section { margin-bottom: 22px; }
+    .cl-section-header {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px; border-radius: var(--radius) var(--radius) 0 0;
+      border: 1px solid var(--border); border-bottom: none;
+    }
+    .cl-section-header .cl-icon { font-size: 1rem; }
+    .cl-section-header .cl-title { font-weight: 700; font-size: 0.88rem; flex: 1; }
+    .cl-section-header .cl-prog {
+      font-size: 0.72rem; font-weight: 700; padding: 3px 10px;
+      border-radius: 999px; background: var(--surface3); color: var(--muted);
+    }
+    .cl-section-header .cl-prog.done { background: var(--teal-dim); color: var(--teal); }
+
+    .cl-items { border: 1px solid var(--border); border-radius: 0 0 var(--radius) var(--radius); overflow: hidden; }
+    .cl-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 11px 14px; border-bottom: 1px solid var(--border);
+      transition: background 0.15s; cursor: pointer;
+    }
+    .cl-item:last-child { border-bottom: none; }
+    .cl-item:hover { background: var(--surface3); }
+    .cl-item.checked { background: rgba(0,229,176,0.04); }
+
+    .cl-checkbox {
+      width: 20px; height: 20px; border-radius: 6px; flex-shrink: 0;
+      border: 2px solid var(--border); display: flex; align-items: center;
+      justify-content: center; transition: all 0.2s; background: var(--surface2);
+    }
+    .cl-item.checked .cl-checkbox {
+      background: #1a9e99; border-color: #1a9e99;
+    }
+    .cl-checkbox svg { opacity: 0; transition: opacity 0.2s; }
+    .cl-item.checked .cl-checkbox svg { opacity: 1; }
+
+    .cl-item-body { flex: 1; min-width: 0; }
+    .cl-item-name {
+      font-size: 0.95rem; font-weight: 600;
+      transition: color 0.2s, text-decoration 0.2s;
+    }
+    .cl-item.checked .cl-item-name { color: var(--muted); text-decoration: line-through; }
+    .cl-item-meta { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+
+    .cl-tag {
+      font-size: 0.68rem; font-weight: 700; padding: 2px 8px;
+      border-radius: 999px; flex-shrink: 0;
+    }
+
+    .cl-chapter { margin-bottom: 32px; }
+    .cl-chapter-header {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 12px; padding-bottom: 10px;
+      border-bottom: 1.5px solid var(--border);
+    }
+    .cl-chapter-num {
+      width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg, #5eccc8, #1a9e99); border: none;
+      color: #fff; display: flex; align-items: center; justify-content: center;
+      font-size: 0.65rem; font-weight: 800; letter-spacing: 0.02em;
+    }
+    .cl-chapter-title {
+      font-size: 0.76rem; font-weight: 800; text-transform: uppercase;
+      letter-spacing: 0.1em; color: var(--text); flex: 1;
+    }
+    .cl-chapter-prog {
+      font-size: 0.7rem; font-weight: 700; padding: 2px 9px;
+      border-radius: 999px; background: var(--surface3); color: var(--muted);
+    }
+    .cl-chapter-prog.done { background: var(--teal-dim); color: var(--teal); }
+
+    /* ── BUTTONS ── */
+    .btn {
+      padding: 9px 20px; border-radius: 10px; border: none;
+      cursor: pointer; font-size: 0.88rem; font-weight: 700;
+      font-family: inherit; transition: all 0.2s; letter-spacing: 0.01em;
+    }
+    .btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(26,158,153,0.18); }
+    .btn:active { transform: translateY(0); }
+    .btn-primary {
+      background: linear-gradient(135deg, #5eccc8, #1a9e99);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(26,158,153,0.25);
+    }
+    .btn-primary:hover { background: linear-gradient(135deg, #6ed8d4, #1a9e99); }
+    .btn-outline {
+      background: transparent; border: 1.5px solid var(--border);
+      color: var(--text);
+    }
+    .btn-outline:hover { border-color: #5eccc8; color: #1a9e99; background: var(--surface2); }
+    .btn-sm { padding: 7px 14px; font-size: 0.82rem; }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 100; align-items: center; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-top: 3px solid #5eccc8;
+      border-radius: var(--radius);
+      padding: 32px;
+      width: 440px; max-width: 95vw;
+      box-shadow: 0 8px 40px rgba(26,158,153,0.12);
+    }
+    .modal h3 {
+      font-size: 1.15rem; font-weight: 700; margin-bottom: 22px;
+      color: var(--text);
+    }
+    .form-group { margin-bottom: 16px; }
+    .form-group label {
+      display: block; font-size: 0.75rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.05em;
+      color: var(--muted); margin-bottom: 6px;
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%; padding: 11px 14px;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 10px; color: var(--text); font-size: 0.92rem; font-family: inherit;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus { outline: none; border-color: #1a9e99; box-shadow: 0 0 0 2px rgba(26,158,153,0.12); }
+    .form-group textarea { resize: vertical; min-height: 70px; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+
+    /* ── NAME AUTOCOMPLETE ── */
+    .name-dropdown {
+      position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+      background: var(--surface); border: 1px solid var(--accent);
+      border-radius: var(--radius); z-index: 200;
+      max-height: 230px; overflow-y: auto;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+    }
+    .name-dropdown-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px; cursor: pointer; transition: background 0.15s;
+    }
+    .name-dropdown-item:hover { background: var(--surface2); }
+    .name-dropdown-item .av {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: var(--accent);
+      color: #fff; display: flex; align-items: center; justify-content: center;
+      font-size: 0.78rem; font-weight: 800; flex-shrink: 0;
+    }
+    .name-dropdown-item .txt .n { font-size: 0.87rem; font-weight: 600; }
+    .name-dropdown-item .txt .m { font-size: 0.73rem; color: var(--muted); }
+    .name-dropdown-empty { padding: 12px; font-size: 0.82rem; color: var(--muted); text-align: center; }
+
+    /* ── DIRECTORIO ── */
+    .dir-card {
+      display: flex; align-items: center; gap: 12px;
+      padding: 11px 14px; border-radius: var(--radius);
+      border: 1px solid var(--border); margin-bottom: 7px;
+      background: var(--surface2); transition: border-color 0.2s;
+    }
+    .dir-card:hover { border-color: var(--border); }
+    .dir-card .avatar {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: var(--surface3);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 0.9rem; color: var(--text); flex-shrink: 0;
+    }
+    .dir-card .info { flex: 1; min-width: 0; }
+    .dir-card .info .name { font-weight: 700; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .dir-card .info .meta { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+    .dir-card .actions { display: flex; gap: 4px; flex-shrink: 0; }
+
+    .picker-card {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 14px; border-radius: var(--radius);
+      border: 1px solid var(--border); margin-bottom: 7px;
+      background: var(--surface2); cursor: pointer;
+      transition: all 0.2s;
+    }
+    .picker-card:hover { border-color: var(--accent); background: var(--surface2); }
+    .picker-card .avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--surface3);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 0.88rem; color: var(--text); flex-shrink: 0;
+    }
+    .picker-card .info { flex: 1; }
+    .picker-card .info .name { font-weight: 700; font-size: 0.88rem; }
+    .picker-card .info .meta { font-size: 0.74rem; color: var(--muted); }
+
+    /* ── EXPORT BAR ── */
+    .export-bar {
+      display: flex; gap: 8px; padding: 12px 24px;
+      border-top: 1px solid var(--border); background: var(--surface);
+    }
+
+    /* ── PDF DROPDOWN ── */
+    .pdf-dropdown { position: relative; }
+    .pdf-menu {
+      position: absolute; bottom: calc(100% + 6px); left: 0;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.22);
+      padding: 6px; min-width: 230px; z-index: 200;
+    }
+    .pdf-menu button {
+      display: block; width: 100%; text-align: left;
+      padding: 9px 14px; font-size: 0.82rem; font-weight: 500;
+      background: none; border: none; color: var(--text);
+      cursor: pointer; border-radius: 7px; transition: background 0.15s;
+    }
+    .pdf-menu button:hover { background: var(--surface3); }
+    .pdf-menu-divider {
+      height: 1px; background: var(--border); margin: 4px 0;
+    }
+
+    /* ── PRINT DOCUMENT ── */
+    #print-doc { display: none; }
+
+    @media print {
+      .app-shell, .modal-overlay { display: none !important; }
+      #print-doc {
+        display: block !important;
+        font-family: 'Helvetica Neue', Arial, sans-serif;
+        color: #111; background: #fff; padding: 0;
+      }
+      .pd-page { padding: 32px 40px; }
+      .pd-brand {
+        font-size: 0.65rem; font-weight: 900; letter-spacing: 0.18em;
+        text-transform: uppercase; color: #888; margin-bottom: 4px;
+      }
+      .pd-title {
+        font-size: 1.6rem; font-weight: 800; margin: 0 0 4px;
+      }
+      .pd-meta {
+        font-size: 0.8rem; color: #555; margin-bottom: 24px;
+        padding-bottom: 16px; border-bottom: 2px solid #111;
+      }
+      /* checklist print styles */
+      .cl-chapter { margin-bottom: 24px; page-break-inside: avoid; }
+      .cl-chapter-header {
+        display: flex; align-items: center; gap: 8px;
+        padding-bottom: 6px; border-bottom: 1.5px solid #ccc; margin-bottom: 8px;
+      }
+      .cl-chapter-num {
+        width: 20px; height: 20px; border-radius: 50%;
+        border: 1.5px solid #999; display: inline-flex;
+        align-items: center; justify-content: center;
+        font-size: 0.58rem; font-weight: 800; color: #666;
+      }
+      .cl-chapter-title {
+        font-size: 0.65rem; font-weight: 800; text-transform: uppercase;
+        letter-spacing: 0.1em; color: #666; flex: 1;
+      }
+      .cl-chapter-prog { display: none; }
+      .cl-section { margin-bottom: 10px; }
+      .cl-section-header {
+        display: flex; align-items: center; gap: 6px;
+        padding: 4px 0; border-bottom: 1px solid #eee;
+      }
+      .cl-icon { font-size: 0.85rem; }
+      .cl-title { font-size: 0.75rem; font-weight: 700; flex: 1; }
+      .cl-prog { font-size: 0.68rem; color: #888; }
+      .cl-items { padding-left: 4px; }
+      .cl-item {
+        display: flex; align-items: flex-start; gap: 8px;
+        padding: 4px 0; border-bottom: 1px dotted #e0e0e0;
+        font-size: 0.78rem;
+      }
+      .cl-checkbox {
+        width: 13px; height: 13px; border: 1.5px solid #aaa;
+        border-radius: 3px; flex-shrink: 0; margin-top: 1px;
+        background: #fff;
+      }
+      .cl-item.checked .cl-checkbox {
+        background: #2a9d8f; border-color: #2a9d8f;
+      }
+      .cl-item-name { font-weight: 600; color: #111; }
+      .cl-item-meta { color: #666; font-size: 0.73rem; margin-top: 1px; }
+      .cl-item-tag { display: none; }
+      /* menu doc print styles */
+      .pd-section-title {
+        font-size: 0.65rem; font-weight: 800; text-transform: uppercase;
+        letter-spacing: 0.12em; color: #888;
+        padding-bottom: 4px; border-bottom: 1px solid #ddd;
+        margin: 20px 0 10px;
+      }
+      .pd-dish-block { margin-bottom: 16px; page-break-inside: avoid; }
+      .pd-dish-name { font-size: 0.95rem; font-weight: 700; margin-bottom: 6px; }
+      .pd-ing-list { list-style: none; padding: 0; margin: 0; }
+      .pd-ing-list li {
+        display: flex; justify-content: space-between;
+        font-size: 0.78rem; padding: 3px 0;
+        border-bottom: 1px dotted #e8e8e8; color: #333;
+      }
+      .pd-ing-qty { font-weight: 600; color: #111; white-space: nowrap; margin-left: 16px; }
+      .pd-bar-grid {
+        display: grid; grid-template-columns: 1fr 1fr;
+        gap: 4px 24px; font-size: 0.78rem; margin-top: 6px;
+      }
+      .pd-bar-item { padding: 3px 0; border-bottom: 1px dotted #e8e8e8; }
+      .pd-bar-qty { font-weight: 600; float: right; }
+      .pd-no-data { font-size: 0.78rem; color: #aaa; font-style: italic; }
+    }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+    /* ═══════════════════════════════════════════
+       MOBILE — max-width: 700px
+       ═══════════════════════════════════════════ */
+    @media (max-width: 700px) {
+
+      /* ── Layout general ── */
+      .app { flex-direction: column; height: auto; min-height: calc(100vh - 56px); }
+
+      /* ── Header ── */
+      header { height: 56px; padding: 0 14px; gap: 10px; }
+      .nosh-logo { padding: 5px 11px 6px; }
+      .nosh-logo .nl-name { font-size: 1.2rem; }
+      .nosh-logo .nl-sub  { font-size: 0.52rem; }
+      header h1 { font-size: 0.88rem; }
+      header .header-subtitle { display: none; }
+      header .header-divider { display: none; }
+
+      /* ── Sidebar — horizontal strip ── */
+      .sidebar {
+        width: 100%; height: auto; min-width: unset;
+        border-right: none; border-bottom: 1px solid var(--border);
+        flex-direction: column;
+      }
+      .sidebar-header {
+        padding: 10px;
+        flex-direction: row;
+        gap: 8px;
+      }
+      .sidebar-header input  { flex: 1; font-size: 0.88rem; padding: 8px 10px; }
+      .sidebar-header button { width: auto; flex-shrink: 0; }
+      .events-list { padding: 8px 10px; display: flex; gap: 8px; overflow-x: auto; flex-direction: row; }
+      .event-card  { min-width: 200px; margin-bottom: 0; flex-shrink: 0; }
+
+      /* ── Main panel ── */
+      .main { height: auto; overflow-y: visible; }
+      .detail-header { padding: 12px 14px 0; }
+      .detail-header h2 { font-size: 1.1rem; }
+      .staff-panel { padding: 12px 10px; }
+
+      /* ── Tabs ── */
+      .tabs { padding: 0 10px; gap: 2px; overflow-x: auto; flex-wrap: nowrap; }
+      .tab  { font-size: 0.78rem; padding: 10px 12px; white-space: nowrap; }
+      .sub-tabs { flex-wrap: nowrap; overflow-x: auto; gap: 4px; }
+      .sub-tab  { font-size: 0.78rem; padding: 7px 12px; white-space: nowrap; }
+      .bar-inner-tabs { flex-wrap: nowrap; overflow-x: auto; }
+      .bar-inner-tab  { font-size: 0.75rem; padding: 6px 10px; white-space: nowrap; }
+
+      /* ── Formulario agregar staff ── */
+      .add-staff-form { grid-template-columns: 1fr !important; gap: 8px; }
+      .add-staff-form button { width: 100%; }
+
+      /* ── Cards ── */
+      .staff-cards, .bar-cards { grid-template-columns: 1fr; }
+      .staff-card .sc-top { flex-wrap: wrap; gap: 6px; }
+      .staff-card .actions { flex-wrap: wrap; gap: 4px; margin-left: auto; }
+
+      /* ── Planeación grids ── */
+      #planeacion-content > div:first-child { grid-template-columns: 1fr !important; }
+      .plan-info-card { padding: 14px; }
+      div[style*="grid-template-columns:repeat(4,1fr)"] { grid-template-columns: repeat(2,1fr) !important; }
+      div[style*="display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap"] { flex-direction: column; }
+      .menu-col { width: 100% !important; }
+      .menu-btn { width: 100%; }
+
+      /* ── Modal — bottom sheet con scroll completo ── */
+      .modal-overlay {
+        align-items: flex-end;
+        padding: 0;
+      }
+      .modal {
+        width: 100% !important;
+        max-width: 100% !important;
+        max-height: 92vh;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+        border-radius: 18px 18px 0 0;
+        padding: 18px 14px 36px;
+        border-top: 3px solid #5eccc8;
+      }
+      /* Compactar formulario dentro del modal en móvil */
+      .modal h3 { font-size: 1rem; margin-bottom: 14px; }
+      .modal .form-group { margin-bottom: 10px; }
+      .modal .form-group label { font-size: 0.7rem; margin-bottom: 4px; }
+      .modal .form-group input,
+      .modal .form-group select,
+      .modal .form-group textarea { padding: 9px 11px; font-size: 0.9rem; }
+      .modal .form-group textarea { min-height: 50px; }
+      .modal-actions {
+        flex-direction: column-reverse;
+        gap: 10px;
+        margin-top: 14px;
+      }
+      .modal-actions button { width: 100%; padding: 13px; font-size: 1rem; }
+
+      /* ── Insumos ── */
+      .insumos-grid { grid-template-columns: 1fr !important; }
+
+      /* ── Export bar ── */
+      .export-bar { flex-wrap: wrap; gap: 8px; padding: 10px; }
+      .export-bar .btn { width: 100%; text-align: center; }
+
+      /* ── Checklist ── */
+      .checklist-panel { padding: 12px 10px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="nosh-logo">
+      <span class="nl-name">nosh</span>
+      <span class="nl-sub">boutique catering</span>
+    </div>
+    <div class="header-divider"></div>
+    <div class="header-app">
+      <h1>Management</h1>
+      <span class="header-subtitle">Gestión de eventos</span>
+    </div>
+  </div>
+  <div style="margin-left:auto;">
+    <button class="btn btn-sm" onclick="openDirectoryModal()" style="background:#1e293b;border:1px solid #2d3f55;color:#94a3b8;font-weight:600;font-size:0.78rem;">
+      🗂 Directorio de Personal
+    </button>
+  </div>
+</header>
+
+<div class="app">
+  <!-- SIDEBAR: lista de eventos -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <input type="text" id="search-events" placeholder="Buscar evento…" oninput="renderEventList()">
+      <button class="btn btn-primary btn-sm" onclick="openEventModal()">+ Nuevo</button>
+    </div>
+    <div class="events-list" id="events-list"></div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main" id="main">
+    <div class="empty-state" id="empty-state">
+      <div class="icon">📋</div>
+      <p>Selecciona o crea un evento para comenzar</p>
+    </div>
+    <div class="event-detail" id="event-detail" style="display:none;">
+      <div class="detail-header">
+        <div class="info">
+          <h2 id="detail-name"></h2>
+          <div class="meta-row">
+            <div class="meta-item">📅 Fecha: <span id="detail-date"></span></div>
+            <div class="meta-item">📍 Lugar: <span id="detail-location"></span></div>
+            <div class="meta-item" id="detail-attendees-item">👥 Personas: <span id="detail-attendees"></span></div>
+            <div class="meta-item" id="detail-event-type-item" style="display:none;">🎉 Tipo: <span id="detail-event-type"></span></div>
+          </div>
+          <div class="meta-row" id="detail-notes-row"></div>
+        </div>
+        <div class="detail-actions">
+          <button class="btn btn-outline btn-sm" onclick="openEventModal(currentEventId)">✏️ Editar</button>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab('planeacion')" id="tab-planeacion">📋 Planeación</div>
+        <div class="tab" onclick="switchTab('staff')"     id="tab-staff">👥 Staff</div>
+        <div class="tab" onclick="switchTab('recetas')"   id="tab-recetas">📖 Recetas</div>
+        <div class="tab" onclick="switchTab('summary')"   id="tab-summary">✅ Check-list</div>
+      </div>
+
+      <!-- TAB PLANEACIÓN -->
+      <div id="panel-planeacion" class="staff-panel">
+        <div id="planeacion-content"></div>
+        <!-- Paneles de cocina y suplementos viven aquí, se muestran/ocultan desde las burbujas -->
+        <div id="plan-cocina-host" style="display:none;"></div>
+        <div id="plan-supl-host"   style="display:none;"></div>
+      </div>
+
+      <!-- TAB RECETAS -->
+      <div id="panel-recetas" class="staff-panel" style="display:none;">
+        <div id="recetas-content"></div>
+      </div>
+
+      <!-- TAB STAFF -->
+      <div id="panel-staff" class="staff-panel" style="display:none;">
+
+        <!-- Sub-pestañas de categoría -->
+        <div class="sub-tabs" id="sub-tabs">
+          <div class="sub-tab active" onclick="switchCat('staff')" id="scat-staff">🧑‍🤝‍🧑 Staff</div>
+        </div>
+
+        <!-- Formulario staff (oculto en tab bar/cocina) -->
+        <div class="add-staff-form" id="staff-add-form" style="grid-template-columns:1fr 1fr 1fr 1fr 100px auto auto;">
+          <div style="position:relative;">
+            <label>Nombre completo</label>
+            <input type="text" id="new-staff-name" placeholder="Busca en directorio o escribe…"
+              autocomplete="off" oninput="onStaffNameInput()" onfocus="onStaffNameInput()" onblur="hideNameDropdown()">
+            <div id="name-dropdown" class="name-dropdown" style="display:none;"></div>
+          </div>
+          <div>
+            <label>Rol / Puesto</label>
+            <select id="new-staff-role"></select>
+          </div>
+          <div>
+            <label>Teléfono (opcional)</label>
+            <input type="text" id="new-staff-phone" placeholder="Ej. 55 1234 5678">
+          </div>
+          <div>
+            <label>Email (opcional)</label>
+            <input type="email" id="new-staff-email" placeholder="Ej. juan@correo.com">
+          </div>
+          <div>
+            <label>Talla</label>
+            <select id="new-staff-shirt">
+              <option value="">—</option>
+              <option>XS</option><option>S</option><option>M</option>
+              <option>L</option><option>XL</option><option>XXL</option>
+            </select>
+          </div>
+          <button class="btn btn-outline" onclick="openPickerModal()" title="Seleccionar del directorio">📋 Directorio</button>
+          <button class="btn btn-primary" onclick="addStaff()">+ Agregar</button>
+        </div>
+        <div id="staff-list"></div>
+
+        <!-- Panel cocina (ahora manejado desde Planeación) -->
+        <div id="cocina-panel" style="display:none;">
+          <div class="bar-inner-tabs">
+            <div class="bar-inner-tab active" onclick="switchCocinaCat('electrodomestico')" id="ccat-electrodomestico">🍳 Electrodoméstico</div>
+            <div class="bar-inner-tab"        onclick="switchCocinaCat('equipamiento')"     id="ccat-equipamiento">🔪 Equipamiento</div>
+          </div>
+
+          <!-- Sub-panel electrodoméstico -->
+          <div id="cocina-electro-panel">
+            <div class="add-staff-form" style="grid-template-columns:1fr 80px 100px auto;">
+              <div>
+                <label>Electrodoméstico</label>
+                <select id="new-electro-name">
+                  <option value="">— Selecciona —</option>
+                  <option>Estufa</option>
+                  <option>Horno</option>
+                  <option>Microondas</option>
+                  <option>Horno para Pizza</option>
+                </select>
+              </div>
+              <div>
+                <label>Cantidad</label>
+                <input type="number" id="new-electro-qty" placeholder="0" min="0">
+              </div>
+              <div>
+                <label>Notas</label>
+                <input type="text" id="new-electro-notes" placeholder="Ej. marca, estado…">
+              </div>
+              <button class="btn btn-primary" onclick="addCocinaItem('electrodomestico')">+ Agregar</button>
+            </div>
+          </div>
+
+          <!-- Sub-panel equipamiento cocina -->
+          <div id="cocina-equip-panel" style="display:none;">
+            <div class="add-staff-form" style="grid-template-columns:1fr 80px 100px auto;">
+              <div>
+                <label>Equipamiento</label>
+                <input type="text" id="new-cequip-name" placeholder="Ej. Sartén, Olla, Cuchillo…">
+              </div>
+              <div>
+                <label>Cantidad</label>
+                <input type="number" id="new-cequip-qty" placeholder="0" min="0">
+              </div>
+              <div>
+                <label>Notas</label>
+                <input type="text" id="new-cequip-notes" placeholder="Ej. tamaño, material…">
+              </div>
+              <button class="btn btn-primary" onclick="addCocinaItem('equipamiento')">+ Agregar</button>
+            </div>
+          </div>
+
+          <!-- Lista combinada -->
+          <div id="cocina-combined-list"></div>
+        </div>
+
+        <!-- Panel suplementos (visible solo en tab suplementos) -->
+        <div id="suplementos-panel" style="display:none;">
+          <div class="bar-inner-tabs">
+            <div class="bar-inner-tab active" onclick="switchSuplCat('uniformes')" id="spcat-uniformes">👔 Uniformes</div>
+            <div class="bar-inner-tab"        onclick="switchSuplCat('insumos')"   id="spcat-insumos">🧴 Insumos</div>
+          </div>
+          <div id="supl-uniformes-panel">
+            <div id="uniforms-list"></div>
+          </div>
+          <div id="supl-insumos-panel" style="display:none;">
+            <!-- Barra de alerta stock bajo -->
+            <div id="low-stock-banner" style="display:none;" class="low-stock-banner">
+              <span>⚠️ Hay ítems con stock bajo.</span>
+              <button class="btn btn-sm" style="background:var(--pink);color:#fff;border:none;margin-left:auto;"
+                onclick="notifyLowStock()">✉️ Notificar al responsable</button>
+            </div>
+            <!-- Formulario agregar insumo -->
+            <div class="add-staff-form" style="grid-template-columns:1fr 80px 80px 100px auto;">
+              <div>
+                <label>Nombre del insumo</label>
+                <input type="text" id="new-insumo-name" placeholder="Ej. Servilletas de cóctel">
+              </div>
+              <div>
+                <label>Stock inicial</label>
+                <input type="number" id="new-insumo-stock" placeholder="50" min="0">
+              </div>
+              <div>
+                <label>Alerta en</label>
+                <input type="number" id="new-insumo-min" placeholder="10" min="0">
+              </div>
+              <div>
+                <label>Unidad</label>
+                <input type="text" id="new-insumo-unit" placeholder="piezas">
+              </div>
+              <button class="btn btn-primary" onclick="addInsumo()">+ Agregar</button>
+            </div>
+            <!-- Config email responsable -->
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
+              <span style="font-size:0.8rem;color:var(--muted);font-weight:600;">📧 Email responsable:</span>
+              <input type="email" id="insumo-alert-email" placeholder="responsable@correo.com"
+                style="padding:6px 10px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:0.82rem;width:240px;"
+                oninput="saveInsumoEmail(this.value)">
+            </div>
+            <!-- Lista de insumos -->
+            <div id="insumos-grid" class="insumos-grid"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB CHECKLIST -->
+      <div id="panel-summary" class="checklist-panel" style="display:none;">
+        <div id="checklist-root"></div>
+      </div>
+
+      <div class="export-bar">
+        <div class="pdf-dropdown" id="pdf-dropdown">
+          <button class="btn btn-outline btn-sm" onclick="togglePdfMenu(event)">📄 Generar PDF ▾</button>
+          <div class="pdf-menu" id="pdf-menu" style="display:none;">
+            <button onclick="printChecklist()">✅ &nbsp;PDF Checklist Administrativo</button>
+            <button onclick="printCocina()">🍳 &nbsp;PDF Checklist Cocina Kitchen</button>
+            <button onclick="printMenu()">🍽 &nbsp;Menú de Evento</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- CONTENEDOR DE IMPRESIÓN -->
+<div id="print-doc"></div>
+
+<!-- MODAL DIRECTORIO -->
+<div class="modal-overlay" id="directory-modal">
+  <div class="modal" style="width:620px;max-width:98vw;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+      <h3>🗂 Directorio de Personal</h3>
+      <button class="btn btn-primary btn-sm" onclick="openPersonForm()">+ Nueva persona</button>
+    </div>
+
+    <!-- Formulario nueva/editar persona -->
+    <div id="person-form" style="display:none;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:16px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div class="form-group" style="margin:0;">
+          <label>Nombre completo *</label>
+          <input type="text" id="dir-name" placeholder="Ej. Juan Pérez">
+        </div>
+        <div class="form-group" style="margin:0;">
+          <label>Rol / Puesto *</label>
+          <select id="dir-role">
+            <option value="">— Selecciona —</option>
+            <option>Lider</option><option>Mesero</option>
+            <option>Mesero-Conductor</option><option>Buser</option>
+            <option>Bartender</option><option>Barback</option>
+            <option>Chef</option><option>Cocinero</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin:0;">
+          <label>Teléfono</label>
+          <input type="text" id="dir-phone" placeholder="Ej. 55 1234 5678">
+        </div>
+        <div class="form-group" style="margin:0;">
+          <label>Email</label>
+          <input type="email" id="dir-email" placeholder="Ej. juan@correo.com">
+        </div>
+        <div class="form-group" style="margin:0;">
+          <label>Talla de camisa</label>
+          <select id="dir-shirt">
+            <option value="">— Sin especificar —</option>
+            <option>XS</option><option>S</option><option>M</option>
+            <option>L</option><option>XL</option><option>XXL</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group" style="margin-top:10px;">
+        <label>Notas</label>
+        <input type="text" id="dir-notes" placeholder="Ej. Experiencia en eventos grandes">
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px;">
+        <button class="btn btn-outline btn-sm" onclick="cancelPersonForm()">Cancelar</button>
+        <button class="btn btn-primary btn-sm" onclick="savePerson()">Guardar</button>
+      </div>
+    </div>
+
+    <!-- Búsqueda -->
+    <input type="text" id="dir-search" placeholder="Buscar por nombre o rol…"
+      style="width:100%;padding:8px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:0.85rem;margin-bottom:12px;"
+      oninput="renderDirectory()">
+
+    <!-- Lista -->
+    <div id="directory-list" style="max-height:340px;overflow-y:auto;"></div>
+
+    <div style="display:flex;justify-content:flex-end;margin-top:16px;">
+      <button class="btn btn-outline btn-sm" onclick="closeDirectoryModal()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PICKER (seleccionar del directorio para evento) -->
+<div class="modal-overlay" id="picker-modal">
+  <div class="modal" style="width:500px;max-width:98vw;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <h3>Seleccionar del Directorio</h3>
+    </div>
+    <input type="text" id="picker-search" placeholder="Buscar por nombre o rol…"
+      style="width:100%;padding:8px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:0.85rem;margin-bottom:12px;"
+      oninput="renderPicker()">
+    <div id="picker-list" style="max-height:360px;overflow-y:auto;"></div>
+    <div style="display:flex;justify-content:flex-end;margin-top:14px;">
+      <button class="btn btn-outline btn-sm" onclick="closePickerModal()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR STAFF -->
+<div class="modal-overlay" id="edit-staff-modal">
+  <div class="modal">
+    <h3>Editar persona</h3>
+    <input type="hidden" id="edit-staff-id">
+    <div class="form-group">
+      <label>Nombre completo *</label>
+      <input type="text" id="edit-staff-name" placeholder="Nombre">
+    </div>
+    <div class="form-group">
+      <label>Rol / Puesto</label>
+      <select id="edit-staff-role"></select>
+    </div>
+    <div class="form-group">
+      <label>Teléfono</label>
+      <input type="text" id="edit-staff-phone" placeholder="Ej. 55 1234 5678">
+    </div>
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="edit-staff-email" placeholder="Ej. juan@correo.com">
+    </div>
+    <div class="form-group">
+      <label>Talla de camisa</label>
+      <select id="edit-staff-shirt">
+        <option value="">— Sin especificar —</option>
+        <option>XS</option><option>S</option><option>M</option>
+        <option>L</option><option>XL</option><option>XXL</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeEditStaffModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveEditStaff()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EVENTO -->
+<div class="modal-overlay" id="event-modal">
+  <div class="modal">
+    <h3 id="modal-title">Nuevo Evento</h3>
+    <div class="form-group">
+      <label>Nombre del evento *</label>
+      <input type="text" id="modal-event-name" placeholder="Ej. Boda García">
+    </div>
+    <div class="form-group">
+      <label>Fecha del evento *</label>
+      <input type="date" id="modal-event-date">
+    </div>
+    <div class="form-group">
+      <label>Lugar</label>
+      <input type="text" id="modal-event-location" placeholder="Ej. Salón Versalles">
+    </div>
+    <div class="form-group">
+      <label>Tipo de evento</label>
+      <select id="modal-event-type" onchange="onEventTypeChange()">
+        <option value="">— Seleccionar —</option>
+        <option value="coctel">Cóctel Party-Recepción</option>
+        <option value="lunch">Lunch</option>
+        <option value="diner">Diner</option>
+      </select>
+    </div>
+    <div class="form-group" id="modal-event-subtype-group" style="display:none;">
+      <label id="modal-event-subtype-label">Modalidad</label>
+      <select id="modal-event-subtype">
+        <option value="full">Full Lunch (Bar y Recepción)</option>
+        <option value="recepcion">Lunch y Recepción</option>
+        <option value="bar">Lunch Bar</option>
+      </select>
+    </div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+      <div class="form-group" style="margin:0">
+        <label>Hora inicio</label>
+        <input type="time" id="modal-event-time-start">
+      </div>
+      <div class="form-group" style="margin:0">
+        <label>Hora fin</label>
+        <input type="time" id="modal-event-time-end">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Número de personas (asistentes)</label>
+      <input type="number" id="modal-event-attendees" placeholder="Ej. 150" min="1">
+    </div>
+    <div class="form-group">
+      <label>Notas</label>
+      <textarea id="modal-event-notes" placeholder="Información adicional…"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeEventModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveEvent()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── CONFIG ─────────────────────────────────────────────────────────
+  // Número de WhatsApp de Nosh Boutique Catering (con código de país, sin +)
+  // TODO: upgrade a WhatsApp Business API para botones interactivos + auto-confirmación
+  const NOSH_WA_NUMBER = '14085060588';
+
+  // ── STATE ──────────────────────────────────────────────────────────
+  let state = JSON.parse(localStorage.getItem('event-staff-app') || '{"events":{}}');
+  let currentEventId = null;
+  let currentTab = 'planeacion';
+  let currentCat = 'staff';
+
+  // ── RECETAS ───────────────────────────────────────────────────────────
+  // Ingredientes por porción para cada opción de menú
+  const RECIPES = {
+    'seafood-1': {
+      name: 'Salmón a la parrilla con glaseado de miel y mostaza',
+      ingredients: [
+        { name: 'Salmón',         qty: 180,  unit: 'g' },
+        { name: 'Miel',           qty: 1,    unit: 'cda' },
+        { name: 'Mostaza',        qty: 1,    unit: 'cda' },
+        { name: 'Coliflor',       qty: 150,  unit: 'g' },
+        { name: 'Espárragos',     qty: 150,  unit: 'g' },
+        { name: 'Aceite de oliva',qty: null, unit: 'al gusto' },
+        { name: 'Sal',            qty: null, unit: 'al gusto' },
+        { name: 'Pimienta',       qty: null, unit: 'al gusto' },
+      ]
+    },
+    'beef-4': {
+      name: 'New York Strip con reducción de vino tinto',
+      ingredients: [
+        { name: 'New York Strip',  qty: 200,  unit: 'g' },
+        { name: 'Vino tinto',      qty: 100,  unit: 'ml' },
+        { name: 'Caldo de carne',  qty: 100,  unit: 'ml' },
+        { name: 'Mantequilla',     qty: 20,   unit: 'g' },
+        { name: 'Aceite de oliva', qty: null, unit: 'al gusto' },
+        { name: 'Sal',             qty: null, unit: 'al gusto' },
+        { name: 'Pimienta',        qty: null, unit: 'al gusto' },
+        { name: 'Ajo',             qty: 2,    unit: 'dientes picados' },
+        { name: 'Romero',          qty: 1,    unit: 'ramita' },
+        { name: 'Puré de patata',  qty: 150,  unit: 'g' },
+      ]
+    },
+    'vegan-1': {
+      name: 'Lasaña de espinacas y ricota con tomate casero',
+      ingredients: [
+        { name: 'Pasta para lasaña',   qty: 2,    unit: 'láminas' },
+        { name: 'Espinacas frescas',   qty: 100,  unit: 'g' },
+        { name: 'Ricota',              qty: 80,   unit: 'g' },
+        { name: 'Mozzarella rallada',  qty: 50,   unit: 'g' },
+        { name: 'Queso parmesano',     qty: 2,    unit: 'cdas' },
+        { name: 'Tomate casero',       qty: 0.5,  unit: 'taza' },
+        { name: 'Ajo',                 qty: 1,    unit: 'diente picado' },
+        { name: 'Aceite de oliva',     qty: 1,    unit: 'cda' },
+        { name: 'Sal',                 qty: null, unit: 'al gusto' },
+        { name: 'Pimienta',            qty: null, unit: 'al gusto' },
+      ]
+    },
+    'cobe-burger': {
+      name: 'Cobe-Burger',
+      ingredients: [
+        { name: 'Aged cheddar',   qty: null, unit: '' },
+        { name: 'Turkey bacon',   qty: null, unit: '' },
+        { name: 'Cherry tomato',  qty: null, unit: '' },
+        { name: 'Lettuce',        qty: null, unit: '' },
+        { name: 'Secret sauce',   qty: null, unit: '' },
+        { name: 'Brioche',        qty: null, unit: '' },
+      ],
+      tags: ['Not gluten-free', 'Not dairy-free', 'Not vegetarian'],
+    },
+  };
+
+  const CATEGORIES = {
+    staff:        { label: 'Staff',            roles: ['Lider', 'Mesero', 'Mesero-Conductor', 'Buser', 'Bartender', 'Barback', 'Chef', 'Cocinero'] },
+    cocina:       { label: 'Equipo de Cocina', roles: ['Chef', 'Cocinero'] },
+    suplementos:  { label: 'Suplementos',      roles: [] },
+  };
+
+  let currentCocinaCat = 'electrodomestico';
+
+  function switchCocinaCat(cat) {
+    currentCocinaCat = cat;
+    ['electrodomestico','equipamiento'].forEach(k => {
+      document.getElementById('ccat-' + k).classList.toggle('active', k === cat);
+    });
+    document.getElementById('cocina-electro-panel').style.display = cat === 'electrodomestico' ? '' : 'none';
+    document.getElementById('cocina-equip-panel').style.display   = cat === 'equipamiento'     ? '' : 'none';
+    renderCocinaList();
+  }
+
+  function getCocinaItems() {
+    const ev = state.events[currentEventId];
+    if (!ev.cocina) ev.cocina = { electrodomestico: [], equipamiento: [] };
+    return ev.cocina;
+  }
+
+  function addCocinaItem(cat) {
+    const nameEl = cat === 'electrodomestico'
+      ? document.getElementById('new-electro-name')
+      : document.getElementById('new-cequip-name');
+    const qtyEl   = document.getElementById(cat === 'electrodomestico' ? 'new-electro-qty'   : 'new-cequip-qty');
+    const notesEl = document.getElementById(cat === 'electrodomestico' ? 'new-electro-notes' : 'new-cequip-notes');
+    const name = nameEl.value.trim();
+    if (!name) { alert('Selecciona o escribe un elemento.'); return; }
+    getCocinaItems()[cat].push({ id: Date.now().toString(), name, qty: qtyEl.value.trim(), notes: notesEl.value.trim() });
+    save();
+    nameEl.value = ''; qtyEl.value = ''; notesEl.value = '';
+    renderCocinaList();
+  }
+
+  function deleteCocinaItem(cat, id) {
+    getCocinaItems()[cat] = getCocinaItems()[cat].filter(i => i.id !== id);
+    save();
+    renderCocinaList();
+  }
+
+  function renderCocinaList() {
+    const cocina = getCocinaItems();
+    const container = document.getElementById('cocina-combined-list');
+    const sections = [
+      { key: 'electrodomestico', label: '🍳 Electrodomésticos', accent: 'var(--orange)' },
+      { key: 'equipamiento',     label: '🔪 Equipamiento',      accent: 'var(--green)'  },
+    ];
+    const total = sections.reduce((n, s) => n + cocina[s.key].length, 0);
+    if (!total) {
+      container.innerHTML = `<p style="color:var(--muted);text-align:center;padding:40px">Sin ítems. Selecciona una sub-pestaña y agrega uno arriba.</p>`;
+      return;
+    }
+    container.innerHTML = sections
+      .filter(s => cocina[s.key].length > 0)
+      .map(s => `
+        <div class="role-group">
+          <div class="role-group-header">
+            <h3 style="color:${s.accent}">${s.label}</h3>
+            <span class="count">${cocina[s.key].length}</span>
+          </div>
+          <div class="bar-cards">
+            ${cocina[s.key].map(i => `
+              <div class="bar-card">
+                <button class="bdel" onclick="deleteCocinaItem('${s.key}','${i.id}')" title="Eliminar">🗑</button>
+                <div class="bname">${i.name}</div>
+                <div class="bqty" style="color:${s.accent}">${i.qty || '—'}</div>
+                <div class="bunit">${i.notes || ''}</div>
+              </div>`).join('')}
+          </div>
+        </div>`).join('');
+  }
+
+  const BAR_CATS = {
+    alcoholicas:  '🍷 Bebidas Alcohólicas',
+    sinAlcohol:   '🥤 Bebidas Sin Alcohol',
+    equipamiento: '🔧 Equipamiento',
+  };
+  let currentBarCat = 'alcoholicas';
+
+  function switchBarCat(cat) {
+    currentBarCat = cat;
+    Object.keys(BAR_CATS).forEach(k => {
+      document.getElementById('bcat-' + k).classList.toggle('active', k === cat);
+    });
+    renderBarList();
+  }
+
+  function switchCat(cat) {
+    currentCat = cat;
+    const scatEl = document.getElementById('scat-staff');
+    if (scatEl) scatEl.classList.toggle('active', cat === 'staff');
+    document.getElementById('staff-add-form').style.display = '';
+    document.getElementById('staff-list').style.display     = '';
+    updateRoleSelect();
+    renderStaff();
+  }
+
+  // ── SUPLEMENTOS / UNIFORMES ─────────────────────────────────────────
+  let currentSuplCat = 'uniformes';
+  let openMenuSections = new Set();
+
+  const UNIFORM_ITEMS = {
+    'Mesero':           ['Camisa', 'Corbata', 'Apron'],
+    'Mesero-Conductor': ['Camisa', 'Corbata', 'Apron'],
+    'Lider':            ['Camisa', 'Corbata', 'Apron'],
+    'Buser':            ['Camisa', 'Corbata', 'Apron'],
+    'Bartender':        ['Camisa', 'Corbata', 'Apron'],
+    'Barback':          ['Camisa', 'Corbata', 'Apron'],
+    'Chef':             ['Bata'],
+    'Cocinero':         ['Bata'],
+  };
+  const DEFAULT_UNIFORM_ITEMS = ['Camisa', 'Corbata', 'Apron'];
+
+  function getSupl() {
+    const ev = state.events[currentEventId];
+    if (!ev.suplementos) ev.suplementos = { uniformes: {} };
+    if (!ev.suplementos.uniformes) ev.suplementos.uniformes = {};
+    return ev.suplementos;
+  }
+
+  function switchSuplCat(cat) {
+    currentSuplCat = cat;
+    ['uniformes', 'insumos'].forEach(k => {
+      document.getElementById('spcat-' + k).classList.toggle('active', k === cat);
+    });
+    document.getElementById('supl-uniformes-panel').style.display = cat === 'uniformes' ? '' : 'none';
+    document.getElementById('supl-insumos-panel').style.display   = cat === 'insumos'   ? '' : 'none';
+    if (cat === 'uniformes') renderUniformes();
+    if (cat === 'insumos')   renderInsumos();
+  }
+
+  // ── INSUMOS ────────────────────────────────────────────────────────
+  function getInsumos() {
+    const ev = state.events[currentEventId];
+    if (!ev.suplementos)          ev.suplementos = {};
+    if (!ev.suplementos.insumos)  ev.suplementos.insumos = [];
+    return ev.suplementos.insumos;
+  }
+
+  function saveInsumoEmail(val) {
+    const ev = state.events[currentEventId];
+    if (!ev.suplementos) ev.suplementos = {};
+    ev.suplementos.alertEmail = val;
+    save();
+  }
+
+  function addInsumo() {
+    const name  = document.getElementById('new-insumo-name').value.trim();
+    const stock = parseInt(document.getElementById('new-insumo-stock').value) || 0;
+    const min   = parseInt(document.getElementById('new-insumo-min').value)   || 0;
+    const unit  = document.getElementById('new-insumo-unit').value.trim() || 'piezas';
+    if (!name) { alert('El nombre del insumo es obligatorio.'); return; }
+    getInsumos().push({ id: Date.now().toString(), name, stock, initial: stock, min, unit });
+    save();
+    document.getElementById('new-insumo-name').value  = '';
+    document.getElementById('new-insumo-stock').value = '';
+    document.getElementById('new-insumo-min').value   = '';
+    document.getElementById('new-insumo-unit').value  = '';
+    renderInsumos();
+  }
+
+  function deleteInsumo(id) {
+    const ev = state.events[currentEventId];
+    ev.suplementos.insumos = getInsumos().filter(i => i.id !== id);
+    save(); renderInsumos();
+  }
+
+  function updateInsumoStock(id, delta) {
+    const item = getInsumos().find(i => i.id === id);
+    if (!item) return;
+    item.stock = Math.max(0, item.stock + delta);
+    save();
+    // Auto-alert when crossing threshold
+    if (delta < 0 && item.stock <= item.min && item.stock > 0) {
+      const ev = state.events[currentEventId];
+      const email = ev.suplementos && ev.suplementos.alertEmail;
+      if (email && confirm(`⚠️ "${item.name}" tiene stock bajo (${item.stock} ${item.unit} restantes).\n¿Notificar al responsable por correo?`)) {
+        notifyLowStock();
+        return;
+      }
+    }
+    renderInsumos();
+  }
+
+  function notifyLowStock() {
+    const ev      = state.events[currentEventId];
+    const email   = (ev.suplementos && ev.suplementos.alertEmail) || '';
+    const lowItems = getInsumos().filter(i => i.stock <= i.min);
+    if (!lowItems.length) { alert('No hay ítems con stock bajo en este momento.'); return; }
+    const lines   = lowItems.map(i => `• ${i.name}: ${i.stock} / ${i.initial} ${i.unit} (alerta en ≤${i.min})`).join('\n');
+    const subject = encodeURIComponent(`⚠️ Stock bajo en evento: ${ev.name || 'Sin nombre'}`);
+    const body    = encodeURIComponent(
+      `Hola,\n\nLos siguientes insumos del evento "${ev.name || ''}" tienen stock bajo y requieren reposición:\n\n${lines}\n\nPor favor gestiona la compra lo antes posible.\n\nNosh Boutique Catering – Nosh Management`
+    );
+    window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+  }
+
+  function renderInsumos() {
+    const ev      = state.events[currentEventId];
+    const insumos = getInsumos();
+    const grid    = document.getElementById('insumos-grid');
+    const banner  = document.getElementById('low-stock-banner');
+
+    // Restore saved email
+    const emailEl = document.getElementById('insumo-alert-email');
+    if (emailEl && ev.suplementos && ev.suplementos.alertEmail) {
+      emailEl.value = ev.suplementos.alertEmail;
+    }
+
+    const lowCount = insumos.filter(i => i.stock <= i.min).length;
+    banner.style.display = lowCount ? 'flex' : 'none';
+
+    if (!insumos.length) {
+      grid.innerHTML = `<div style="grid-column:1/-1;color:var(--muted);text-align:center;padding:48px;">
+        <div style="font-size:2rem;margin-bottom:8px">🧴</div>
+        Sin insumos. Agrega uno arriba.</div>`;
+      return;
+    }
+
+    grid.innerHTML = insumos.map(item => {
+      const pct   = item.initial > 0 ? Math.round(item.stock / item.initial * 100) : 0;
+      const isCrit = item.stock <= item.min;
+      const isLow  = item.stock <= item.min * 2 && !isCrit;
+      const fillClass = isCrit ? 'crit' : isLow ? 'low' : '';
+      return `
+        <div class="insumo-card${isCrit ? ' low-stock' : ''}">
+          <button class="idel" onclick="deleteInsumo('${item.id}')" title="Eliminar">🗑</button>
+          <div class="insumo-name">${item.name}</div>
+          <div class="insumo-stock-bar-bg">
+            <div class="insumo-stock-bar-fill ${fillClass}" style="width:${pct}%"></div>
+          </div>
+          <div class="insumo-counters">
+            <div class="insumo-stock-label">
+              <strong>${item.stock}</strong> / ${item.initial} ${item.unit}
+            </div>
+            ${isCrit ? `<span class="insumo-alert-badge">⚠️ Stock bajo</span>` : ''}
+          </div>
+          <div class="insumo-btns">
+            <button class="insumo-btn use" onclick="updateInsumoStock('${item.id}', -1)" title="Usar 1">− Usar</button>
+            <button class="insumo-btn"     onclick="updateInsumoStock('${item.id}', -5)" title="Usar 5">− 5</button>
+            <button class="insumo-btn add" onclick="updateInsumoStock('${item.id}',  5)" title="Agregar 5">+ 5</button>
+            <button class="insumo-btn add" onclick="updateInsumoStock('${item.id}',  1)" title="Agregar 1">+ Reponer</button>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function renderUniformes() {
+    const ev = state.events[currentEventId];
+    const allStaff = (ev.staff || []).filter(s =>
+      ['staff', 'cocina'].includes(s.category) ||
+      Object.keys(UNIFORM_ITEMS).includes(s.role)
+    );
+
+    const container = document.getElementById('uniforms-list');
+    if (!allStaff.length) {
+      container.innerHTML = `<div class="uniform-empty">
+        <div style="font-size:2rem;margin-bottom:8px">👔</div>
+        No hay personal cargado en este evento.<br>
+        <span style="font-size:0.78rem">Agrega staff en las pestañas Staff o Equipo de Cocina para ver sus uniformes aquí.</span>
+      </div>`;
+      return;
+    }
+
+    const rows = allStaff.map(s => {
+      const items = UNIFORM_ITEMS[s.role] || DEFAULT_UNIFORM_ITEMS;
+      const rs    = ROLE_STYLE[s.role] || { bg:'#e0f5f4', color:'#1a9e99' };
+      const style = `background:${rs.bg};color:${rs.color};`;
+      const talla = s.shirt || '—';
+      const chips = items.map(i => `<span class="uniform-chip-item">${i}</span>`).join('');
+      return `
+        <tr>
+          <td>
+            <div class="cell-name">
+              <div class="av-sm" style="${style}">${s.name.charAt(0).toUpperCase()}</div>
+              <span>${s.name}</span>
+            </div>
+          </td>
+          <td>${s.role}</td>
+          <td><span class="uniform-chip-talla">${talla}</span></td>
+          <td><div class="uniform-chips">${chips}</div></td>
+        </tr>`;
+    }).join('');
+
+    container.innerHTML = `
+      <table class="uniform-table">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Rol</th>
+            <th>Talla</th>
+            <th>Tipo de uniforme</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  }
+
+  function updateRoleSelect() {
+    const sel = document.getElementById('new-staff-role');
+    const roles = CATEGORIES[currentCat].roles;
+    if (roles.length) {
+      sel.innerHTML = roles.map(r => `<option value="${r}">${r}</option>`).join('');
+      sel.parentElement.style.display = '';
+    } else {
+      sel.innerHTML = '';
+      sel.parentElement.style.display = 'none';
+    }
+  }
+
+  // ── BAR SUGGESTIONS ────────────────────────────────────────────────
+  const BAR_SUGGESTIONS = {
+    alcoholicas: [
+      // Whisky
+      'Whisky Johnnie Walker Red Label','Whisky Johnnie Walker Black Label',
+      'Whisky Johnnie Walker Gold Label','Whisky Johnnie Walker Blue Label',
+      'Whisky Jack Daniel\'s','Whisky Jim Beam','Whisky Chivas Regal 12',
+      'Whisky Jameson','Whisky Glenfiddich 12','Whisky The Macallan 12',
+      'Whisky Buchanan\'s 12','Whisky Buchanan\'s 18',
+      // Vodka
+      'Vodka Smirnoff','Vodka Absolut','Vodka Grey Goose',
+      'Vodka Belvedere','Vodka Cîroc',
+      // Ron
+      'Ron Bacardí Blanco','Ron Bacardí Añejo','Ron Havana Club 3 años',
+      'Ron Havana Club 7 años','Ron Captain Morgan','Ron Diplomatico Reserva',
+      'Ron Appleton Estate',
+      // Tequila
+      'Tequila José Cuervo Blanco','Tequila José Cuervo Reposado',
+      'Tequila Patrón Silver','Tequila Patrón Reposado',
+      'Tequila Don Julio Blanco','Tequila Don Julio Reposado','Tequila Don Julio 1942',
+      'Tequila Herradura Silver','Tequila Olmeca Blanco',
+      // Gin
+      'Gin Beefeater','Gin Bombay Sapphire','Gin Tanqueray',
+      'Gin Hendrick\'s','Gin Gordon\'s',
+      // Brandy / Cognac
+      'Cognac Hennessy VS','Cognac Hennessy VSOP','Cognac Hennessy XO',
+      'Cognac Rémy Martin VSOP','Cognac Courvoisier VS','Brandy Torres 10',
+      // Vino
+      'Vino Tinto Cabernet Sauvignon','Vino Tinto Merlot','Vino Tinto Malbec',
+      'Vino Blanco Chardonnay','Vino Blanco Sauvignon Blanc','Vino Rosado',
+      // Champagne / Espumoso
+      'Champagne Moët & Chandon','Champagne Veuve Clicquot','Champagne Dom Pérignon',
+      'Espumoso Freixenet','Cava Codorníu',
+      // Cerveza
+      'Cerveza Corona','Cerveza Modelo Especial','Cerveza Heineken',
+      'Cerveza Victoria','Cerveza Tecate','Cerveza XX Lager','Cerveza Stella Artois',
+      // Licores
+      'Licor Baileys','Licor Kahlúa','Licor Amaretto Disaronno',
+      'Licor Blue Curaçao','Triple Sec Cointreau','Licor Aperol',
+      'Licor Campari','Mezcal Alipús','Mezcal Del Maguey',
+    ],
+    sinAlcohol: [
+      // Agua natural
+      'Agua Ciel','Agua Epura','Agua Bonafont','Agua Evian',
+      'Agua Volvic','Agua San Pellegrino Natural','Agua Fiji',
+      // Sparkling / Mineral con gas
+      'Agua Mineral Perrier','Agua Mineral San Pellegrino',
+      'Agua Mineral Topo Chico','Agua Mineral Peñafiel Natural',
+      'Agua Mineral Agua de Vals','Agua Mineral Badoit',
+      'Sparkling Water Fever-Tree','Sparkling Water LaCroix',
+      // Tónica
+      'Tónica Fever-Tree','Tónica Schweppes','Tónica Q Mixers',
+      'Tónica 1724','Tónica Fentimans',
+      // Gaseosas / Refrescos
+      'Coca-Cola','Coca-Cola Sin Azúcar','Coca-Cola Light',
+      'Pepsi','Pepsi Zero','Pepsi Light',
+      'Sprite','Sprite Sin Azúcar','7UP','7UP Sin Azúcar',
+      'Fanta Naranja','Fanta Limón','Mirinda',
+      'Squirt','Squirt Sin Azúcar','Mundet Manzana',
+      'Peñafiel Manzana','Peñafiel Durazno','Peñafiel Toronja',
+      'Sangría Señorial','Sidral Mundet',
+      // Aguas de sabor / Isotónicas
+      'Gatorade Limón','Gatorade Naranja','Gatorade Sandía',
+      'Powerade Frutas Tropicales','Powerade Naranja',
+      'Electrolit Natural','Electrolit Limón',
+      // Jugos y néctares
+      'Jugo Del Valle Mango','Jugo Del Valle Naranja','Jugo Del Valle Durazno',
+      'Jugo Jumex Naranja','Jugo Jumex Mango','Jugo Jumex Guayaba',
+      'Jugo Boing Guayaba','Jugo Boing Fresa',
+      'Jugo de Naranja Natural','Jugo de Tomate Clamato',
+      // Energizantes
+      'Red Bull Original','Red Bull Sin Azúcar',
+      'Monster Energy','Monster Ultra Zero',
+      'Boost Energy','Vive 100',
+      // Té / Café frío
+      'Té Lipton Limón','Té Fuzetea Melocotón',
+      'Nestea Limón','Arizona Green Tea',
+      'Cold Brew Coffee',
+      // Cocteles sin alcohol / Mocktails
+      'Shirley Temple','Virgin Mojito','Virgin Piña Colada',
+      'Limonada Natural','Limonada Mineral','Agua de Jamaica',
+      'Agua de Horchata','Agua de Tamarindo',
+    ],
+    equipamiento: [
+      // Herramientas de barra
+      'Coctelera / Shaker','Jigger / Medidor','Muddler / Mortero',
+      'Colador / Strainer','Cucharilla mezcladora','Abridor de botellas',
+      'Sacacorchos / Sommelier','Pinzas para hielo','Tabla de corte',
+      // Hielería
+      'Hielera grande','Hielera pequeña','Bolsa de hielo (5 kg)',
+      'Máquina de hielo','Cubo de hielo decorativo',
+      // Cristalería
+      'Vasos Highball','Vasos Old-Fashioned / Rocks','Vasos Shot / Caballitos',
+      'Copas de Vino Tinto','Copas de Vino Blanco',
+      'Copas Champagne / Flauta','Copas Martini / Cóctel',
+      'Copas de Margarita','Vasos Pilsner (cerveza)',
+      // Servicio
+      'Servilletas de barra','Posavasos','Pitillos / Popotes',
+      'Pitillos metálicos reutilizables','Decoraciones de cóctel (palillos, sombrillas)',
+      'Tablas antipasto','Bowls para garnish',
+      // Ingredientes base
+      'Limón amarillo','Limón verde','Naranjas','Menta fresca',
+      'Azúcar blanca','Azúcar morena','Sal gruesa (rimming)',
+      'Sal de Tajín','Grenadine','Jarabe simple',
+      'Agua de coco','Crema de coco','Jugo de arándano','Jugo de piña',
+    ],
+  };
+
+  // ── BAR ITEMS ──────────────────────────────────────────────────────
+  function getBarSel(subcat) {
+    const ev = state.events[currentEventId];
+    if (!ev.planeacion)          ev.planeacion = { notas: '', items: [], staffPlan: {}, menu: {} };
+    if (!ev.planeacion.bar)      ev.planeacion.bar = { alcoholicas: {}, sinAlcohol: {}, equipamiento: {} };
+    if (!ev.planeacion.bar[subcat]) ev.planeacion.bar[subcat] = {};
+    return ev.planeacion.bar[subcat];
+  }
+
+  function toggleBarSelect(subcat, idx) {
+    const item = BAR_SUGGESTIONS[subcat][idx];
+    const sel  = getBarSel(subcat);
+    sel[item]  = sel[item] > 0 ? 0 : 1;
+    save();
+    renderBarList();
+  }
+
+  function setBarQty(subcat, idx, rawVal) {
+    const item = BAR_SUGGESTIONS[subcat][idx];
+    const sel  = getBarSel(subcat);
+    sel[item]  = Math.max(1, parseInt(rawVal) || 1);
+    save();
+  }
+
+  function renderBarList() {
+    const container = document.getElementById('bar-list');
+    if (!container) return;
+    const cat   = currentBarCat;
+    const sel   = getBarSel(cat);
+    const items = BAR_SUGGESTIONS[cat] || [];
+    container.innerHTML = `<div style="max-height:280px;overflow-y:auto;padding-right:4px;">` +
+      items.map((item, idx) => {
+        const selected = (sel[item] || 0) > 0;
+        return `<div style="padding:6px 4px;border-bottom:1px solid var(--border);cursor:pointer;user-select:none;"
+                     onclick="toggleBarSelect('${cat}',${idx})">
+          <span style="font-size:0.83rem;color:${selected ? 'var(--teal)' : 'var(--text)'};">
+            ${selected ? '✓ ' : ''}${item}
+          </span>
+        </div>`;
+      }).join('') + `</div>`;
+  }
+
+  function save() {
+    localStorage.setItem('event-staff-app', JSON.stringify(state));
+  }
+
+  // ── EVENTS ─────────────────────────────────────────────────────────
+  function openEventModal(id = null) {
+    document.getElementById('modal-title').textContent = id ? 'Editar Evento' : 'Nuevo Evento';
+    const ev = id ? state.events[id] : {};
+    document.getElementById('modal-event-name').value      = ev.name      || '';
+    document.getElementById('modal-event-date').value      = ev.date      || '';
+    document.getElementById('modal-event-location').value  = ev.location  || '';
+    document.getElementById('modal-event-time-start').value = ev.timeStart || '';
+    document.getElementById('modal-event-time-end').value   = ev.timeEnd   || '';
+    document.getElementById('modal-event-attendees').value  = ev.attendees || '';
+    document.getElementById('modal-event-notes').value      = ev.notes     || '';
+    document.getElementById('modal-event-type').value    = ev.eventType    || '';
+    document.getElementById('modal-event-subtype').value = ev.eventSubtype || '';
+    onEventTypeChange(ev.eventType, ev.eventSubtype);
+    document.getElementById('event-modal').dataset.editId = id || '';
+    document.getElementById('event-modal').classList.add('open');
+  }
+
+  function closeEventModal() {
+    document.getElementById('event-modal').classList.remove('open');
+  }
+
+  function onEventTypeChange(type, subtype) {
+    const t = type !== undefined ? type : document.getElementById('modal-event-type').value;
+    const subtypeGroup = document.getElementById('modal-event-subtype-group');
+    const subtypeLabel = document.getElementById('modal-event-subtype-label');
+    const subtypeSelect = document.getElementById('modal-event-subtype');
+    const needsSub = t === 'lunch' || t === 'diner';
+    subtypeGroup.style.display = needsSub ? '' : 'none';
+    if (!needsSub) return;
+    const cap = t === 'lunch' ? 'Lunch' : 'Diner';
+    subtypeLabel.textContent = 'Modalidad de ' + cap;
+    subtypeSelect.innerHTML = `
+      <option value="full">Full ${cap} (Bar y Recepción)</option>
+      <option value="recepcion">${cap} y Recepción</option>
+      <option value="bar">${cap} Bar</option>
+    `;
+    if (subtype) subtypeSelect.value = subtype;
+  }
+
+  function saveEvent() {
+    const name = document.getElementById('modal-event-name').value.trim();
+    const date = document.getElementById('modal-event-date').value;
+    if (!name) { alert('El nombre del evento es obligatorio.'); return; }
+
+    const editId = document.getElementById('event-modal').dataset.editId;
+    const id = editId || Date.now().toString();
+
+    state.events[id] = {
+      id,
+      name,
+      date,
+      location:     document.getElementById('modal-event-location').value.trim(),
+      timeStart:    document.getElementById('modal-event-time-start').value,
+      timeEnd:      document.getElementById('modal-event-time-end').value,
+      attendees:    document.getElementById('modal-event-attendees').value.trim(),
+      notes:        document.getElementById('modal-event-notes').value.trim(),
+      eventType:    document.getElementById('modal-event-type').value,
+      eventSubtype: document.getElementById('modal-event-subtype-group').style.display !== 'none'
+                      ? document.getElementById('modal-event-subtype').value : '',
+      staff:    state.events[id]?.staff || []
+    };
+    save();
+    closeEventModal();
+    renderEventList();
+    selectEvent(id);
+  }
+
+  function deleteEvent(id) {
+    if (!confirm('¿Eliminar este evento y todo su staff?')) return;
+    delete state.events[id];
+    save();
+    if (currentEventId === id) {
+      currentEventId = null;
+      showEmpty();
+    }
+    renderEventList();
+  }
+
+  function selectEvent(id) {
+    currentEventId = id;
+    renderEventList();
+    renderEventDetail();
+  }
+
+  function showEmpty() {
+    document.getElementById('empty-state').style.display = 'flex';
+    document.getElementById('event-detail').style.display = 'none';
+  }
+
+  // ── RENDER SIDEBAR ──────────────────────────────────────────────────
+  function renderEventList() {
+    const q = document.getElementById('search-events').value.toLowerCase();
+    const list = document.getElementById('events-list');
+    const events = Object.values(state.events)
+      .filter(e => e.name.toLowerCase().includes(q))
+      .sort((a, b) => (a.date || '') < (b.date || '') ? -1 : 1);
+
+    if (!events.length) {
+      list.innerHTML = '<p style="color:var(--muted);font-size:0.82rem;padding:12px;text-align:center">Sin eventos</p>';
+      return;
+    }
+
+    list.innerHTML = events.map(ev => {
+      const confirmed = (ev.staff || []).filter(s => s.status === 'confirmed').length;
+      const total     = (ev.staff || []).length;
+      const badgeClass = confirmed === total && total > 0 ? 'confirmed' : 'pending';
+      const badgeText  = total > 0 ? `${confirmed}/${total} confirmados` : 'Sin staff';
+      return `
+        <div class="event-card ${currentEventId === ev.id ? 'active' : ''}" onclick="selectEvent('${ev.id}')">
+          <button class="delete-event" onclick="event.stopPropagation();deleteEvent('${ev.id}')">🗑</button>
+          <div class="name">${ev.name}</div>
+          <div class="meta">${ev.date ? formatDate(ev.date) : 'Sin fecha'} · ${ev.location || 'Sin lugar'}</div>
+          <span class="badge ${badgeClass}">${badgeText}</span>
+        </div>`;
+    }).join('');
+  }
+
+  // ── RENDER DETAIL ───────────────────────────────────────────────────
+  function renderEventDetail() {
+    if (!currentEventId || !state.events[currentEventId]) { showEmpty(); return; }
+    const ev = state.events[currentEventId];
+    document.getElementById('empty-state').style.display = 'none';
+    document.getElementById('event-detail').style.display = 'flex';
+
+    document.getElementById('detail-name').textContent     = ev.name;
+    document.getElementById('detail-date').textContent     = ev.date ? formatDate(ev.date) : '—';
+    document.getElementById('detail-location').textContent = ev.location || '—';
+    const attendeesItem = document.getElementById('detail-attendees-item');
+    if (ev.attendees) {
+      document.getElementById('detail-attendees').textContent = Number(ev.attendees).toLocaleString('es-MX');
+      attendeesItem.style.display = '';
+    } else {
+      attendeesItem.style.display = 'none';
+    }
+    const notesRow = document.getElementById('detail-notes-row');
+    notesRow.innerHTML = ev.notes ? `<div class="meta-item">📝 <span>${ev.notes}</span></div>` : '';
+    const typeLabels = { coctel: 'Cóctel Party-Recepción', lunch: 'Lunch', diner: 'Diner' };
+    const subLabels  = { full: 'Full (Bar y Recepción)', recepcion: 'y Recepción', bar: 'Bar' };
+    const typeItem = document.getElementById('detail-event-type-item');
+    if (ev.eventType) {
+      let label = typeLabels[ev.eventType] || ev.eventType;
+      if (ev.eventSubtype && subLabels[ev.eventSubtype]) {
+        const cap = ev.eventType === 'lunch' ? 'Lunch' : (ev.eventType === 'diner' ? 'Diner' : '');
+        label += (cap ? ' — ' + cap + ' ' : ' — ') + subLabels[ev.eventSubtype];
+      }
+      document.getElementById('detail-event-type').textContent = label;
+      typeItem.style.display = '';
+    } else {
+      typeItem.style.display = 'none';
+    }
+
+    if (currentTab === 'planeacion') renderPlaneacion();
+    else if (currentTab === 'staff') renderStaff();
+    else renderSummary();
+  }
+
+  // ── STAFF ───────────────────────────────────────────────────────────
+  function addStaff() {
+    const name  = document.getElementById('new-staff-name').value.trim();
+    const roles = CATEGORIES[currentCat].roles;
+    const role  = roles.length ? document.getElementById('new-staff-role').value : currentCat;
+    const phone = document.getElementById('new-staff-phone').value.trim();
+    const email = document.getElementById('new-staff-email').value.trim();
+    const shirt = document.getElementById('new-staff-shirt').value;
+    if (!name) { alert('El nombre es obligatorio.'); return; }
+
+    state.events[currentEventId].staff.push({
+      id: Date.now().toString(),
+      name, role, phone, email, shirt,
+      category: currentCat,
+      status: 'pending'
+    });
+    save();
+    document.getElementById('new-staff-name').value = '';
+    document.getElementById('new-staff-role').value = '';
+    document.getElementById('new-staff-phone').value = '';
+    document.getElementById('new-staff-email').value = '';
+    document.getElementById('new-staff-shirt').value = '';
+    renderStaff();
+    renderEventList();
+  }
+
+  function cycleStatus(eventId, staffId) {
+    const cycle = { pending: 'confirmed', confirmed: 'declined', declined: 'pending' };
+    const staff = state.events[eventId].staff.find(s => s.id === staffId);
+    if (staff) { staff.status = cycle[staff.status]; save(); renderStaff(); renderEventList(); }
+  }
+
+  function deleteStaff(eventId, staffId) {
+    state.events[eventId].staff = state.events[eventId].staff.filter(s => s.id !== staffId);
+    save();
+    renderStaff();
+    renderEventList();
+  }
+
+  function openEditStaffModal(eventId, staffId) {
+    const s = state.events[eventId].staff.find(s => s.id === staffId);
+    if (!s) return;
+    document.getElementById('edit-staff-id').value     = staffId;
+    document.getElementById('edit-staff-name').value   = s.name;
+    document.getElementById('edit-staff-phone').value  = s.phone || '';
+    document.getElementById('edit-staff-email').value  = s.email || '';
+    document.getElementById('edit-staff-shirt').value  = s.shirt || '';
+    // Poblar select de roles según la categoría del staff
+    const roles = CATEGORIES[s.category]?.roles || Object.values(CATEGORIES).flatMap(c => c.roles);
+    const sel = document.getElementById('edit-staff-role');
+    sel.innerHTML = roles.map(r => `<option value="${r}" ${r === s.role ? 'selected' : ''}>${r}</option>`).join('');
+    document.getElementById('edit-staff-modal').classList.add('open');
+  }
+
+  function closeEditStaffModal() {
+    document.getElementById('edit-staff-modal').classList.remove('open');
+  }
+
+  function saveEditStaff() {
+    const staffId = document.getElementById('edit-staff-id').value;
+    const s = state.events[currentEventId].staff.find(s => s.id === staffId);
+    if (!s) return;
+    s.name  = document.getElementById('edit-staff-name').value.trim() || s.name;
+    s.role  = document.getElementById('edit-staff-role').value;
+    s.phone = document.getElementById('edit-staff-phone').value.trim();
+    s.email = document.getElementById('edit-staff-email').value.trim();
+    s.shirt = document.getElementById('edit-staff-shirt').value;
+    save();
+    closeEditStaffModal();
+    renderStaff();
+  }
+
+  function sendWhatsApp(eventId, staffId) {
+    const ev = state.events[eventId];
+    const s  = ev.staff.find(s => s.id === staffId);
+    if (!s || !s.phone) return;
+
+    const phone    = s.phone.replace(/\D/g, '');
+    const nombre   = s.name.split(' ')[0];
+    const fecha    = ev.date ? formatDate(ev.date) : 'fecha por confirmar';
+    const lugar    = ev.location || '';
+    const lugarTxt = lugar ? `, en *${lugar}*` : '';
+
+    // Horario
+    function fmt12(t) {
+      if (!t) return null;
+      const [h, m] = t.split(':').map(Number);
+      const ampm = h >= 12 ? 'p.m.' : 'a.m.';
+      const h12  = h % 12 || 12;
+      return `${h12}:${String(m).padStart(2,'0')} ${ampm}`;
+    }
+    const t1 = fmt12(ev.timeStart);
+    const t2 = fmt12(ev.timeEnd);
+    const horarioTxt = t1 && t2 ? `, de *${t1}* a *${t2}*`
+                     : t1       ? `, a partir de las *${t1}*`
+                     : '';
+
+    const msg =
+`Hola ${nombre} 👋, te contacta *Nosh Boutique Catering*.
+
+Queremos saber tu disponibilidad para el *${fecha}*${horarioTxt}, para el evento *${ev.name}*${lugarTxt}.
+
+Por favor respóndenos con una de estas opciones:
+
+✅ *SÍ* — estoy disponible
+❌ *NO* — no estoy disponible
+
+¡Gracias! Te esperamos 🙌
+
+_Nosh Boutique Catering · +1 (408) 506-0588_`;
+
+    // Abre WhatsApp hacia el número del staff
+    // Asegúrate de tener el número ${NOSH_WA_NUMBER} activo en este dispositivo
+    const url = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+    window.open(url, '_blank');
+  }
+
+  // Actualiza estado desde respuesta manual (futuro: webhook WhatsApp Business API)
+  function confirmFromWA(eventId, staffId, response) {
+    const ev = state.events[eventId];
+    const s  = ev.staff.find(s => s.id === staffId);
+    if (!s) return;
+    s.status = response === 'si' ? 'confirmed' : 'declined';
+    save();
+    renderStaff();
+    renderEventList();
+  }
+
+  const statusLabel = { confirmed: '✅ Confirmado', pending: '⏳ Pendiente', declined: '❌ Rechazado' };
+  const statusClass = { confirmed: 'status-confirmed', pending: 'status-pending', declined: 'status-declined' };
+
+  const ROLE_STYLE = {
+    'Lider':            { bg:'#fef3c7', color:'#92400e', border:'#fde68a' },
+    'Mesero':           { bg:'#e0f5f4', color:'#1a9e99', border:'#a8e6e4' },
+    'Mesero-Conductor': { bg:'#ede9fe', color:'#5b21b6', border:'#ddd6fe' },
+    'Buser':            { bg:'#d1fae5', color:'#065f46', border:'#a7f3d0' },
+    'Bartender':        { bg:'#ffedd5', color:'#9a3412', border:'#fed7aa' },
+    'Barback':          { bg:'#fce7f3', color:'#9d174d', border:'#fbcfe8' },
+    'Chef':             { bg:'#fee2e2', color:'#991b1b', border:'#fecaca' },
+    'Cocinero':         { bg:'#dcfce7', color:'#14532d', border:'#bbf7d0' },
+  };
+  function roleTag(role) {
+    const s = ROLE_STYLE[role] || { bg:'#f4f4f5', color:'#52525b', border:'#d4d4d8' };
+    return `<span class="role-tag" style="background:${s.bg};color:${s.color};border:1px solid ${s.border}">${role}</span>`;
+  }
+  function avatarStyle(role) {
+    const s = ROLE_STYLE[role] || { bg:'#f4f4f5', color:'#52525b' };
+    return `background:${s.bg};color:${s.color};border:1px solid ${s.border || s.bg}`;
+  }
+
+  function renderStaff() {
+    const ev = state.events[currentEventId];
+    const container = document.getElementById('staff-list');
+
+    const filtered = currentCat === 'staff'
+      ? ev.staff
+      : ev.staff.filter(s => s.category === currentCat);
+
+    if (!filtered.length) {
+      container.innerHTML = `<p style="color:var(--muted);text-align:center;padding:40px">Sin personal en ${CATEGORIES[currentCat].label}. Agrega uno arriba.</p>`;
+      return;
+    }
+
+    const groups = {};
+    filtered.forEach(s => {
+      if (!groups[s.role]) groups[s.role] = [];
+      groups[s.role].push(s);
+    });
+
+    container.innerHTML = Object.keys(groups).sort().map(role => `
+      <div class="role-group">
+        <div class="role-group-header">
+          <h3>${role}</h3>
+          <span class="count">${groups[role].length}</span>
+        </div>
+        <div class="staff-cards">
+          ${groups[role].map(s => `
+            <div class="staff-card">
+              <div class="sc-top">
+                <div class="av" style="${avatarStyle(s.role)}">${s.name.charAt(0).toUpperCase()}</div>
+                <div class="sname">${s.name}</div>
+                <div class="actions">
+                  <button class="status-badge ${statusClass[s.status]}"
+                    onclick="cycleStatus('${currentEventId}','${s.id}')"
+                    title="Clic para cambiar estado">
+                    ${statusLabel[s.status]}
+                  </button>
+                  ${s.phone ? `<button class="btn-icon btn-wa" onclick="sendWhatsApp('${currentEventId}','${s.id}')" title="Enviar invitación por WhatsApp">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="#25d366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                  </button>` : ''}
+                  <button class="btn-icon" onclick="openEditStaffModal('${currentEventId}','${s.id}')" title="Editar">✏️</button>
+                  <button class="btn-icon" onclick="deleteStaff('${currentEventId}','${s.id}')" title="Eliminar">🗑</button>
+                </div>
+              </div>
+              <div class="sc-bottom">
+                ${roleTag(s.role)}
+                ${s.phone ? `<span class="sc-divider">·</span><span class="sc-text">📞 ${s.phone}</span>` : ''}
+                ${s.email ? `<span class="sc-divider">·</span><span class="sc-text">✉️ ${s.email}</span>` : ''}
+                ${s.shirt ? `<span class="sc-divider">·</span><span class="smeta-contact"><span class="chip-shirt">👕 ${s.shirt}</span></span>` : ''}
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>`).join('');
+  }
+
+  // ── SUMMARY ─────────────────────────────────────────────────────────
+  function getChecklist() {
+    const ev = state.events[currentEventId];
+    if (!ev.checklist) ev.checklist = {};
+    return ev.checklist;
+  }
+
+  function toggleCheckItem(key) {
+    const cl = getChecklist();
+    cl[key] = !cl[key];
+    save();
+    renderChecklist();
+  }
+
+  function renderChecklist() {
+    const ev      = state.events[currentEventId];
+    const cl      = getChecklist();
+    const staff   = ev.staff  || [];
+    const bar     = ev.bar    || { alcoholicas: [], sinAlcohol: [], equipamiento: [] };
+    const cocina  = ev.cocina || { electrodomestico: [], equipamiento: [] };
+    const plan    = ev.planeacion || {};
+    const menuPlan  = plan.menu || {};
+    const barPlan   = plan.bar  || {};
+
+    const DISH_NAMES = {
+      'cobe-burger':'🍔 Cobe-Burger','aji-tuna':'🐟 Aji-Tuna','aranchino':'🍢 Aranchino',
+      'grilled-cheese':'🧀 Grilled Cheese','caesar-salad-bite':'🥗 Caesar Salad Bite',
+      'chicken-1':'🍗 Pechuga rellena de espinacas y queso feta',
+      'chicken-2':'🍗 Muslos al horno con costra de parmesano',
+      'chicken-3':'🍗 Pollo a la parrilla, limón y romero',
+      'chicken-4':'🍗 Cordón blue relleno de jamón y queso',
+      'chicken-5':'🍗 Muslo glaseado con miel y mostaza',
+      'beef-1':'🥩 Riba a la parrilla con mantequilla de hierbas',
+      'beef-2':'🥩 Filet mignon envuelto en tocino',
+      'beef-3':'🥩 Tomahawk a la brasa con chimichurri',
+      'beef-4':'🥩 New York Strip con reducción de vino tinto',
+      'beef-5':'🥩 Bistec de falda marinada con quinoa y verduras',
+      'seafood-1':'🐟 Salmón a la parrilla con glaseado de miel y mostaza',
+      'seafood-2':'🐟 Filete de atún sellado con soya y jengibre',
+      'seafood-3':'🦐 Ceviche de camarón con chips de plátano',
+      'seafood-4':'🌮 Tacos de pescado estilo Baja con crema de aguacate',
+      'seafood-5':'🍚 Risotto de mariscos con camarones, calamares y mejillones',
+      'vegan-1':'🌿 Lasaña de espinacas y ricota con tomate casero',
+      'vegan-2':'🌿 Curry de garbanzos y verduras con arroz basmati',
+      'vegan-3':'🌮 Tacos de nopales con frijoles, pico de gallo y guacamole',
+      'vegan-4':'🍄 Risotto de champiñones y espárragos con parmesano',
+      'vegan-5':'🌿 Hamburguesa de lentejas en pan integral con col',
+    };
+
+    const chapters = [];
+
+    // ── CAPÍTULO 01: PERSONAL ─────────────────────────────────────────
+    if (staff.length) {
+      const SALA_ROLES = ['Lider','Mesero','Mesero-Conductor','Buser'];
+      const BAR_ROLES  = ['Bartender','Barback'];
+      const COCI_ROLES = ['Chef','Cocinero'];
+      const makeStaffItems = list => list.map(s => ({
+        key:  `staff_${s.id}`,
+        name: s.name,
+        meta: s.role + (s.phone ? ' · ' + s.phone : ''),
+        tag:  s.status==='confirmed' ? { text:'Confirmado', bg:'var(--teal-dim)', color:'var(--teal)' }
+            : s.status==='declined'  ? { text:'Rechazado',  bg:'var(--pink-dim)', color:'var(--pink)' }
+            :                          { text:'Pendiente',   bg:'var(--amber-dim)',color:'var(--amber)' },
+      }));
+      const sections = [];
+      const sala = staff.filter(s => SALA_ROLES.includes(s.role));
+      const barp = staff.filter(s => BAR_ROLES.includes(s.role));
+      const coci = staff.filter(s => COCI_ROLES.includes(s.role));
+      if (sala.length) sections.push({ icon:'🤵', title:'Personal de Sala',   color:'var(--sky)',    items: makeStaffItems(sala) });
+      if (barp.length) sections.push({ icon:'🍸', title:'Personal de Bar',    color:'var(--pink)',   items: makeStaffItems(barp) });
+      if (coci.length) sections.push({ icon:'👨‍🍳', title:'Personal de Cocina', color:'var(--orange)', items: makeStaffItems(coci) });
+      if (sections.length) chapters.push({ num:'01', icon:'👥', title:'Personal', sections });
+    }
+
+    // ── CAPÍTULO 02: LICORES ──────────────────────────────────────────
+    {
+      const sections = [];
+      if (bar.alcoholicas.length) sections.push({
+        icon:'🍷', title:'Bebidas Alcohólicas', color:'var(--pink)',
+        items: bar.alcoholicas.map(i => ({ key:`bar_alc_${i.id}`, name:i.name, meta:(i.qty||'')+(i.unit?' '+i.unit:'') }))
+      });
+      if (bar.sinAlcohol.length) sections.push({
+        icon:'🥤', title:'Sin Alcohol', color:'var(--sky)',
+        items: bar.sinAlcohol.map(i => ({ key:`bar_na_${i.id}`, name:i.name, meta:(i.qty||'')+(i.unit?' '+i.unit:'') }))
+      });
+      if (bar.equipamiento.length) sections.push({
+        icon:'🍸', title:'Equipamiento de Bar', color:'var(--amber)',
+        items: bar.equipamiento.map(i => ({ key:`bar_eq_${i.id}`, name:i.name, meta:(i.qty||'')+(i.unit?' '+i.unit:'') }))
+      });
+      if (sections.length) chapters.push({ num:'02', icon:'🍹', title:'Licores', sections });
+    }
+
+    // ── CAPÍTULO 03: EQUIPO ───────────────────────────────────────────
+    {
+      const equipSections = [];
+
+      // Uniformes
+      const staffConUnif = staff.filter(s => UNIFORM_ITEMS[s.role]);
+      if (staffConUnif.length) {
+        const camisasByTalla = {};
+        let corbatas=0, aprons=0, batas=0;
+        staffConUnif.forEach(s => {
+          const items = UNIFORM_ITEMS[s.role];
+          if (items.includes('Camisa'))  { const t=s.shirt||'Sin talla'; camisasByTalla[t]=(camisasByTalla[t]||0)+1; }
+          if (items.includes('Corbata')) corbatas++;
+          if (items.includes('Apron'))   aprons++;
+          if (items.includes('Bata'))    batas++;
+        });
+        const TALLA_ORDER = ['XS','S','M','L','XL','XXL','Sin talla'];
+        const unifItems = [];
+        TALLA_ORDER.forEach(t => {
+          if (camisasByTalla[t]) { const n=camisasByTalla[t]; unifItems.push({ key:`unif_camisa_${t}`, name:`${n} Camisa${n>1?'s':''} talla ${t}`, meta:'' }); }
+        });
+        if (corbatas) unifItems.push({ key:'unif_corbata', name:`${corbatas} Corbata${corbatas>1?'s':''}`, meta:'' });
+        if (aprons)   unifItems.push({ key:'unif_apron',   name:`${aprons} Apron${aprons>1?'s':''}`,       meta:'' });
+        if (batas)    unifItems.push({ key:'unif_bata',    name:`${batas} Bata${batas>1?'s':''}`,          meta:'' });
+        if (unifItems.length) equipSections.push({ icon:'👔', title:'Uniformes', color:'var(--teal)', items: unifItems });
+      }
+
+      // Insumos
+      const insumos = (ev.suplementos && ev.suplementos.insumos) || [];
+      if (insumos.length) {
+        const insumoItems = insumos.map(i => ({
+          key:  `insumo_${i.id}`,
+          name: i.name,
+          meta: `${i.stock} / ${i.initial} ${i.unit}`,
+          tag:  i.stock<=i.min ? { text:'⚠️ Stock bajo', bg:'var(--pink-dim)', color:'var(--pink)' } : undefined,
+        }));
+        equipSections.push({ icon:'🧴', title:'Insumos y Consumibles', color:'var(--orange)', items: insumoItems });
+      }
+
+      if (equipSections.length) chapters.push({ num:'03', icon:'🎒', title:'Equipo', sections: equipSections });
+    }
+
+    // ── CAPÍTULO 04: FOOD KITCHEN ─────────────────────────────────────
+    {
+      const sections = [];
+
+      // Menú planeado — Appetizer
+      const appSel = menuPlan.appetizer;
+      if (appSel && typeof appSel === 'object') {
+        const items = Object.entries(appSel).filter(([,q]) => q > 0)
+          .map(([v,q]) => ({ key:`menu_app_${v}`, name: DISH_NAMES[v]||v, meta: q>1?q+' porciones':'' }));
+        if (items.length) sections.push({ icon:'🥗', title:'Appetizer', color:'var(--green)', items });
+      }
+
+      // Menú planeado — Plato principal (con ingredientes escalados por receta)
+      const mainKey   = ev.eventType==='diner' ? 'dinner' : ev.eventType==='lunch' ? 'lunch' : null;
+      const mainLabel = ev.eventType==='diner' ? 'Dinner' : 'Lunch';
+      if (mainKey) {
+        const mainSel = menuPlan[mainKey];
+        if (mainSel && typeof mainSel === 'object') {
+          const scaleIng = (qty, unit, portions) => {
+            if (qty === null) return unit;
+            const total = qty * portions;
+            if (unit === 'g'  && total >= 1000) return `${+(total / 1000).toFixed(2)} kg`;
+            if (unit === 'ml' && total >= 1000) return `${+(total / 1000).toFixed(2)} L`;
+            return `${+total.toFixed(2)} ${unit}`;
+          };
+          const dishesNoRecipe = [];
+          Object.entries(mainSel).filter(([,q]) => q > 0).forEach(([v, q]) => {
+            const recipe = RECIPES[v];
+            if (recipe) {
+              const ingItems = recipe.ingredients.map((ing, idx) => ({
+                key:  `recipe_${v}_${idx}`,
+                name: ing.name,
+                meta: scaleIng(ing.qty, ing.unit, q),
+              }));
+              sections.push({ icon:'🍽', title:`${DISH_NAMES[v]||recipe.name} — ${q} porc.`, color:'var(--amber)', items: ingItems });
+            } else {
+              dishesNoRecipe.push({ key:`menu_main_${v}`, name: DISH_NAMES[v]||v, meta: q>1?`${q} porciones`:'' });
+            }
+          });
+          if (dishesNoRecipe.length) sections.push({ icon:'🍽', title:`Menú Principal · ${mainLabel}`, color:'var(--amber)', items: dishesNoRecipe });
+        }
+      }
+
+      // Bar planeado — alcohólicas
+      const barAlcItems = Object.entries(barPlan.alcoholicas||{}).filter(([,q])=>q>0)
+        .map(([name,q]) => ({ key:`planbar_alc_${name}`, name, meta: q>1?q+' uds.':'' }));
+      if (barAlcItems.length) sections.push({ icon:'🍷', title:'Bebidas Alcohólicas (Plan)', color:'var(--pink)', items: barAlcItems });
+
+      // Bar planeado — sin alcohol
+      const barNaItems = Object.entries(barPlan.sinAlcohol||{}).filter(([,q])=>q>0)
+        .map(([name,q]) => ({ key:`planbar_na_${name}`, name, meta: q>1?q+' uds.':'' }));
+      if (barNaItems.length) sections.push({ icon:'🥤', title:'Bebidas Sin Alcohol (Plan)', color:'var(--sky)', items: barNaItems });
+
+      // Cocina — electrodomésticos y equipamiento
+      if (cocina.electrodomestico.length) sections.push({
+        icon:'🍳', title:'Electrodomésticos', color:'var(--orange)',
+        items: cocina.electrodomestico.map(i => ({ key:`coc_el_${i.id}`, name:i.name, meta:(i.qty?i.qty+' uds.':'')+(i.notes?'  '+i.notes:'') }))
+      });
+      if (cocina.equipamiento.length) sections.push({
+        icon:'🔪', title:'Equipamiento de Cocina', color:'var(--green)',
+        items: cocina.equipamiento.map(i => ({ key:`coc_eq_${i.id}`, name:i.name, meta:(i.qty?i.qty+' uds.':'')+(i.notes?'  '+i.notes:'') }))
+      });
+
+      if (sections.length) chapters.push({ num:'04', icon:'🍽', title:'Food Kitchen', sections });
+    }
+
+    // ── Progress total ────────────────────────────────────────────────
+    const allKeys = chapters.flatMap(c => c.sections.flatMap(s => s.items.map(i => i.key)));
+    const checked = allKeys.filter(k => cl[k]).length;
+    const total   = allKeys.length;
+    const pct     = total ? Math.round(checked / total * 100) : 0;
+
+    const root = document.getElementById('checklist-root');
+    if (!total) {
+      root.innerHTML = '<p style="color:var(--muted);text-align:center;padding:60px">Agrega información al evento para generar el check-list.</p>';
+      return;
+    }
+
+    // ── Render section ────────────────────────────────────────────────
+    const renderSection = sec => {
+      const sc = sec.items.filter(i => cl[i.key]).length;
+      const sd = sc === sec.items.length;
+      return `
+        <div class="cl-section">
+          <div class="cl-section-header" style="background:var(--surface2);">
+            <span class="cl-icon">${sec.icon}</span>
+            <span class="cl-title" style="color:${sec.color}">${sec.title}</span>
+            <span class="cl-prog ${sd?'done':''}">${sc}/${sec.items.length}</span>
+          </div>
+          <div class="cl-items">
+            ${sec.items.map(item => {
+              const done = !!cl[item.key];
+              return `
+                <div class="cl-item ${done?'checked':''}" onclick="toggleCheckItem('${item.key}')">
+                  <div class="cl-checkbox">
+                    <svg width="12" height="10" viewBox="0 0 12 10" fill="none">
+                      <path d="M1 5l3.5 3.5L11 1" stroke="#06080f" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </div>
+                  <div class="cl-item-body">
+                    <div class="cl-item-name">${item.name}</div>
+                    ${item.meta ? `<div class="cl-item-meta">${item.meta}</div>` : ''}
+                  </div>
+                  ${item.tag ? `<span class="cl-tag" style="background:${item.tag.bg};color:${item.tag.color}">${item.tag.text}</span>` : ''}
+                </div>`;
+            }).join('')}
+          </div>
+        </div>`;
+    };
+
+    root.innerHTML = `
+      <div class="cl-progress-wrap">
+        <div class="cl-progress-top">
+          <span class="title">Progreso general del evento</span>
+          <span class="pct">${pct}%</span>
+        </div>
+        <div class="cl-progress-bar-bg">
+          <div class="cl-progress-bar-fill" style="width:${pct}%"></div>
+        </div>
+        <div style="font-size:0.75rem;color:var(--muted);margin-top:8px">${checked} de ${total} ítems completados</div>
+      </div>
+
+      ${chapters.map(ch => {
+        const chKeys    = ch.sections.flatMap(s => s.items.map(i => i.key));
+        const chChecked = chKeys.filter(k => cl[k]).length;
+        const chDone    = chChecked === chKeys.length;
+        return `
+          <div class="cl-chapter">
+            <div class="cl-chapter-header">
+              <div class="cl-chapter-num">${ch.num}</div>
+              <div class="cl-chapter-title">${ch.icon} ${ch.title}</div>
+              <div class="cl-chapter-prog ${chDone?'done':''}">${chChecked}/${chKeys.length}</div>
+            </div>
+            ${ch.sections.map(renderSection).join('')}
+          </div>`;
+      }).join('')}`;
+  }
+
+  // ── TABS ─────────────────────────────────────────────────────────────
+  function switchTab(tab) {
+    currentTab = tab;
+    document.getElementById('panel-planeacion').style.display = tab === 'planeacion' ? 'block' : 'none';
+    document.getElementById('panel-staff').style.display      = tab === 'staff'      ? 'block' : 'none';
+    document.getElementById('panel-recetas').style.display    = tab === 'recetas'    ? 'block' : 'none';
+    document.getElementById('panel-summary').style.display    = tab === 'summary'    ? 'block' : 'none';
+    document.getElementById('tab-planeacion').classList.toggle('active', tab === 'planeacion');
+    document.getElementById('tab-staff').classList.toggle('active',      tab === 'staff');
+    document.getElementById('tab-recetas').classList.toggle('active',    tab === 'recetas');
+    document.getElementById('tab-summary').classList.toggle('active',    tab === 'summary');
+    if (tab === 'planeacion') renderPlaneacion();
+    if (tab === 'recetas')    renderRecetas();
+    if (tab === 'summary')    renderChecklist();
+    if (tab === 'staff')      switchCat(currentCat);
+  }
+
+  function renderRecetas() {
+    const el = document.getElementById('recetas-content');
+    if (!currentEventId || !state.events[currentEventId]) {
+      el.innerHTML = `<p style="color:var(--muted);text-align:center;padding:40px 0;">Selecciona un evento para ver recetas.</p>`;
+      return;
+    }
+    const ev = state.events[currentEventId];
+    const menu = ev.planeacion?.menu || {};
+
+    // Recopilar todos los platos seleccionados que tienen receta
+    const dishes = [];
+    Object.entries(menu).forEach(([cat, val]) => {
+      const sel = Array.isArray(val) ? Object.fromEntries(val.map(v=>[v,1])) : (val || {});
+      Object.entries(sel).forEach(([key, qty]) => {
+        if (qty > 0 && RECIPES[key]) dishes.push({ key, qty, recipe: RECIPES[key] });
+      });
+    });
+
+    if (dishes.length === 0) {
+      el.innerHTML = `<p style="color:var(--muted);text-align:center;padding:40px 0;">No hay platos seleccionados con receta aún.<br><span style="font-size:0.82rem;">Selecciona platos en Planeación → Tipo de evento para ver el cálculo de ingredientes.</span></p>`;
+      return;
+    }
+
+    el.innerHTML = dishes.map(({ key, qty, recipe }) => {
+      const rows = recipe.ingredients.map(ing => {
+        const total = ing.qty !== null ? ing.qty * qty : null;
+        const perPlate = ing.qty !== null ? `${ing.qty} ${ing.unit}` : ing.unit;
+        const totalStr = total !== null
+          ? (ing.unit === 'g' && total >= 1000
+            ? `${(total/1000).toFixed(2).replace(/\.?0+$/,'')} kg`
+            : `${total} ${ing.unit}`)
+          : '—';
+        return `
+        <tr>
+          <td style="padding:8px 10px;font-size:0.85rem;color:var(--text);">${ing.name}</td>
+          <td style="padding:8px 10px;text-align:center;font-size:0.82rem;color:var(--muted);">${perPlate}</td>
+          <td style="padding:8px 10px;text-align:center;font-size:0.85rem;font-weight:700;color:var(--teal);">${totalStr}</td>
+        </tr>`;
+      }).join('');
+
+      return `
+      <div class="plan-info-card" style="margin-bottom:16px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+          <div>
+            <div style="font-weight:700;font-size:0.95rem;color:var(--text);">${recipe.name}</div>
+            <div style="font-size:0.78rem;color:var(--muted);margin-top:2px;">Cantidad de platos: <strong style="color:var(--teal);">${qty}</strong></div>
+          </div>
+        </div>
+        <table style="width:100%;border-collapse:collapse;">
+          <thead>
+            <tr style="border-bottom:1.5px solid var(--border);">
+              <th style="padding:6px 10px;text-align:left;font-size:0.72rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;">Ingrediente</th>
+              <th style="padding:6px 10px;text-align:center;font-size:0.72rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;">Por plato</th>
+              <th style="padding:6px 10px;text-align:center;font-size:0.72rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;">Total (${qty} platos)</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>`;
+    }).join('');
+  }
+
+  function eventHasBar() {
+    if (!currentEventId || !state.events[currentEventId]) return false;
+    const ev = state.events[currentEventId];
+    return ev.eventType === 'coctel' || ev.eventSubtype === 'full' || ev.eventSubtype === 'bar';
+  }
+
+  function renderPlaneacion() {
+    if (!currentEventId || !state.events[currentEventId]) return;
+    const ev = state.events[currentEventId];
+    const typeLabels    = { coctel: 'Cóctel Party-Recepción', lunch: 'Lunch', diner: 'Diner' };
+    const subLabels     = { full: 'Full (Bar y Recepción)', recepcion: 'y Recepción', bar: 'Bar' };
+    const tipoLabel     = ev.eventType ? typeLabels[ev.eventType] || ev.eventType : '—';
+    const modalidadLabel = (ev.eventType && ev.eventSubtype && (ev.eventType === 'lunch' || ev.eventType === 'diner'))
+      ? (ev.eventType === 'lunch' ? 'Lunch' : 'Diner') + ' ' + (subLabels[ev.eventSubtype] || ev.eventSubtype)
+      : null;
+    const tipoFull = modalidadLabel ? `${tipoLabel} — ${modalidadLabel}` : tipoLabel;
+
+    const getPlan = () => {
+      if (!ev.planeacion) ev.planeacion = { notas: '', items: [], staffPlan: {} };
+      if (!ev.planeacion.staffPlan) ev.planeacion.staffPlan = {};
+      return ev.planeacion;
+    };
+    const plan = getPlan();
+    const sp = plan.staffPlan;
+
+    // Pre-cálculo sugerido
+    const n = parseInt(ev.attendees) || 0;
+    const sugerido = {
+      meseros:    n > 0 ? Math.max(2, Math.floor(n / 30) + 1) : 2,
+      cocineros:  n > 0 ? Math.max(1, Math.ceil(n / 100))     : 1,
+      bartenders: n > 0 ? Math.max(1, Math.ceil(n / 100))     : 1,
+      chefs:      1,
+    };
+    // Pre-cargar sugerido si el campo aún no fue tocado manualmente
+    ['meseros','cocineros','bartenders','chefs'].forEach(k => {
+      if (sp[k] === undefined || sp[k] === null) { sp[k] = sugerido[k]; save(); }
+    });
+
+    const fields = [
+      { key:'meseros',    label:'🤵 Meseros',    hint:`1 c/30 · mín 2` },
+      { key:'cocineros',  label:'👨‍🍳 Cocineros',  hint:`1 c/100` },
+      { key:'bartenders', label:'🍸 Bartenders',  hint:`1 c/100` },
+      { key:'chefs',      label:'👨‍🍳 Chef',        hint:`fijo` },
+    ];
+
+    document.getElementById('planeacion-content').innerHTML = `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px;">
+        <div class="plan-info-card" style="grid-column:1/-1;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+            <div class="plan-info-label" style="margin:0;">👥 Personal requerido ${n ? `<span style="font-weight:400;color:var(--muted);">· ${n.toLocaleString('es-MX')} asistentes</span>` : ''}</div>
+            <button onclick="resetStaffPlanSugerido()" style="font-size:0.72rem;color:var(--muted);background:none;border:1px solid var(--border);border-radius:6px;padding:3px 8px;cursor:pointer;" title="Restaurar valores sugeridos">↺ Sugerido</button>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+            ${fields.map(({key,label,hint}) => {
+              const isSugerido = sp[key] === sugerido[key];
+              return `
+              <div style="text-align:center;">
+                <div style="font-size:0.72rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px;">${label}</div>
+                <input type="number" min="0" value="${sp[key] ?? sugerido[key]}"
+                  oninput="saveStaffPlan('${key}', this.value)"
+                  style="width:100%;text-align:center;padding:8px 4px;border:1px solid var(--border);border-radius:8px;font-size:1.2rem;font-weight:700;color:var(--text);background:var(--bg);box-sizing:border-box;">
+                <div style="font-size:0.68rem;color:var(--muted);margin-top:4px;">${isSugerido ? hint : 'modificado'}</div>
+              </div>`;
+            }).join('')}
+          </div>
+        </div>
+        <div class="plan-info-card" style="grid-column:1/-1;">
+          <div class="plan-info-label" style="margin-bottom:14px;">🎉 Tipo de evento · ${tipoFull}</div>
+
+          <!-- Botones de menú — visibilidad según tipo de evento -->
+          ${(() => {
+            const t = ev.eventType, s = ev.eventSubtype;
+            const showLunch  = t === 'lunch';
+            const showDinner = t === 'diner';
+            const _showBar   = t === 'coctel' || s === 'full' || s === 'bar';
+
+            const makeCol = (key, icon, label, options) => {
+              // Migrar formato antiguo (array) a objeto con cantidades
+              let raw = plan.menu?.[key];
+              if (Array.isArray(raw)) { raw = Object.fromEntries(raw.map(v=>[v,1])); if (!plan.menu) plan.menu={}; plan.menu[key]=raw; save(); }
+              const sel = (raw && typeof raw === 'object' && !Array.isArray(raw)) ? raw : {};
+              const selectedItems = options.filter(([v]) => sel[v] > 0);
+              return `
+              <div class="menu-col" id="menu-col-${key}">
+                <button class="menu-btn" style="font-weight:600;" onclick="toggleMenuSection(event,'${key}')">
+                  ${icon} ${label} <span id="menu-${key}-arrow">▼</span>
+                </button>
+                ${selectedItems.length ? `
+                <div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:6px;">
+                  ${selectedItems.map(([v,n]) => `
+                    <div class="glass-pill">
+                      <span>${n}</span>
+                      <input type="number" min="1" value="${sel[v]}" placeholder="1"
+                        oninput="setMenuQty('${key}','${v}',this.value)">
+                      <button onclick="toggleMenuSelect('${key}','${v}')">✕</button>
+                    </div>`).join('')}
+                </div>` : ''}
+                <div id="menu-${key}-panel" style="display:none;margin-top:8px;flex-direction:column;gap:0;">
+                  ${options.map(([v,n]) => {
+                    const selected = (sel[v] || 0) > 0;
+                    return `<div style="padding:6px 4px;border-bottom:1px solid var(--border);cursor:pointer;user-select:none;"
+                              onclick="toggleMenuSelect('${key}','${v}')">
+                      <span style="font-size:0.83rem;color:${selected?'var(--teal)':'var(--text)'};">
+                        ${selected ? '✓ ' : ''}${n}
+                      </span>
+                    </div>`;
+                  }).join('')}
+                </div>
+              </div>`;
+            };
+
+            const appetizers = [
+              ['cobe-burger','🍔 Cobe-Burger'],['aji-tuna','🐟 Aji-Tuna'],['aranchino','🍢 Aranchino'],
+              ['grilled-cheese','🧀 Grilled Cheese'],['caesar-salad-bite','🥗 Caesar Salad Bite']
+            ];
+
+            const mainGroups = [
+              { key: 'pollo', icon: '🍗', label: 'Pollo', items: [
+                ['chicken-1','Pechuga rellena de espinacas y queso feta'],
+                ['chicken-2','Muslos al horno con costra de parmesano'],
+                ['chicken-3','Pollo a la parrilla, limón y romero'],
+                ['chicken-4','Cordón blue relleno de jamón y queso'],
+                ['chicken-5','Muslo glaseado con miel y mostaza'],
+              ]},
+              { key: 'beef', icon: '🥩', label: 'Beef / Steak', items: [
+                ['beef-1','Riba a la parrilla con mantequilla de hierbas'],
+                ['beef-2','Filet mignon envuelto en tocino'],
+                ['beef-3','Tomahawk a la brasa con chimichurri'],
+                ['beef-4','New York Strip con reducción de vino tinto'],
+                ['beef-5','Bistec de falda marinada con quinoa y verduras'],
+              ]},
+              { key: 'seafood', icon: '🐟', label: 'Seafood', items: [
+                ['seafood-1','Salmón a la parrilla con glaseado de miel y mostaza'],
+                ['seafood-2','Filete de atún sellado con soya y jengibre'],
+                ['seafood-3','Ceviche de camarón con chips de plátano'],
+                ['seafood-4','Tacos de pescado estilo Baja con crema de aguacate'],
+                ['seafood-5','Risotto de mariscos con camarones, calamares y mejillones'],
+              ]},
+              { key: 'vegan', icon: '🌿', label: 'Vegan', items: [
+                ['vegan-1','Lasaña de espinacas y ricota con tomate casero'],
+                ['vegan-2','Curry de garbanzos y verduras con arroz basmati'],
+                ['vegan-3','Tacos de nopales con frijoles, pico de gallo y guacamole'],
+                ['vegan-4','Risotto de champiñones y espárragos con parmesano'],
+                ['vegan-5','Hamburguesa de lentejas en pan integral con col'],
+              ]},
+            ];
+
+            const makeGroupedCol = (key, icon, label, groups) => {
+              let raw = plan.menu?.[key];
+              if (Array.isArray(raw)) { raw = Object.fromEntries(raw.map(v=>[v,1])); if (!plan.menu) plan.menu={}; plan.menu[key]=raw; save(); }
+              const sel = (raw && typeof raw === 'object' && !Array.isArray(raw)) ? raw : {};
+              const selectedItems = [];
+              groups.forEach(g => g.items.forEach(([v,n]) => { if ((sel[v]||0)>0) selectedItems.push([v, g.icon+' '+n]); }));
+              return `
+              <div class="menu-col" id="menu-col-${key}">
+                <button class="menu-btn" style="font-weight:600;" onclick="toggleMenuSection(event,'${key}')">
+                  ${icon} ${label} <span id="menu-${key}-arrow">▼</span>
+                </button>
+                ${selectedItems.length ? `
+                <div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:6px;">
+                  ${selectedItems.map(([v,n]) => `
+                    <div class="glass-pill">
+                      <span>${n}</span>
+                      <input type="number" min="1" value="${sel[v]}" placeholder="1"
+                        oninput="setMenuQty('${key}','${v}',this.value)">
+                      <button onclick="toggleMenuSelect('${key}','${v}')">✕</button>
+                    </div>`).join('')}
+                </div>` : ''}
+                <div id="menu-${key}-panel" style="display:none;margin-top:8px;flex-direction:column;gap:0;min-width:260px;">
+                  ${groups.map(g => `
+                    <div style="border-bottom:1px solid var(--border);">
+                      <div style="padding:7px 6px;cursor:pointer;user-select:none;display:flex;align-items:center;justify-content:space-between;"
+                           onclick="toggleMenuSection(event,'${key}-${g.key}')">
+                        <span style="font-size:0.85rem;font-weight:600;">${g.icon} ${g.label}</span>
+                        <span id="menu-${key}-${g.key}-arrow" style="font-size:0.7rem;opacity:0.5;">▼</span>
+                      </div>
+                      <div id="menu-${key}-${g.key}-panel" style="display:none;flex-direction:column;gap:0;">
+                        ${g.items.map(([v,n]) => {
+                          const selected = (sel[v]||0)>0;
+                          return `<div style="padding:5px 6px 5px 18px;border-top:1px solid var(--border);cursor:pointer;user-select:none;"
+                                      onclick="toggleMenuSelect('${key}','${v}')">
+                            <span style="font-size:0.82rem;color:${selected?'var(--teal)':'var(--text)'};">
+                              ${selected?'✓ ':''}${n}
+                            </span>
+                          </div>`;
+                        }).join('')}
+                      </div>
+                    </div>`).join('')}
+                </div>
+              </div>`;
+            };
+
+            // Compute selected bar items for summary pills
+            const _barPlan = plan?.bar || {};
+            const _barSelected = [];
+            Object.keys(BAR_CATS).forEach(subcat => {
+              const subcatSel = _barPlan[subcat] || {};
+              (BAR_SUGGESTIONS[subcat] || []).forEach((item, idx) => {
+                const qty = subcatSel[item] || 0;
+                if (qty > 0) _barSelected.push({ subcat, item, idx, qty });
+              });
+            });
+
+            const barCol = _showBar ? `
+              <div class="menu-col" id="menu-col-bar">
+                <button class="menu-btn" style="font-weight:600;" onclick="toggleMenuSection(event,'bar')">
+                  🍸 Bar <span id="menu-bar-arrow">▼</span>
+                </button>
+                ${_barSelected.length ? `
+                <div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:6px;">
+                  ${_barSelected.map(({subcat,item,idx,qty}) => `
+                    <div class="glass-pill">
+                      <span>${item}</span>
+                      <input type="number" min="1" value="${qty}" placeholder="1"
+                        oninput="setBarQty('${subcat}',${idx},this.value)">
+                      <button onclick="toggleBarSelect('${subcat}',${idx})">✕</button>
+                    </div>`).join('')}
+                </div>` : ''}
+                <div id="menu-bar-panel" style="display:none;margin-top:8px;flex-direction:column;gap:0;min-width:320px;">
+                  <div class="bar-inner-tabs">
+                    <div class="bar-inner-tab active" onclick="switchBarCat('alcoholicas')"  id="bcat-alcoholicas">🍷 Bebidas Alcohólicas</div>
+                    <div class="bar-inner-tab"        onclick="switchBarCat('sinAlcohol')"   id="bcat-sinAlcohol">🥤 Sin Alcohol</div>
+                    <div class="bar-inner-tab"        onclick="switchBarCat('equipamiento')" id="bcat-equipamiento">🔧 Equipamiento</div>
+                  </div>
+                  <div id="bar-list" style="margin-top:8px;"></div>
+                </div>
+              </div>` : '';
+
+            return `<div style="display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap;">
+              ${makeCol('appetizer','🥗','Appetizer', appetizers)}
+              ${showLunch  ? makeGroupedCol('lunch', '🍽','Lunch',  mainGroups) : ''}
+              ${showDinner ? makeGroupedCol('dinner','🍷','Dinner', mainGroups) : ''}
+              ${barCol}
+            </div>`;
+          })()}
+        </div>
+      </div>
+
+      <div class="plan-info-card" style="margin-bottom:16px;">
+        <div class="plan-info-label" style="margin-bottom:14px;">🍳 Operaciones del Evento</div>
+        <div style="display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap;">
+          <div class="menu-col" id="menu-col-cocina-plan">
+            <button class="menu-btn" style="font-weight:600;" onclick="togglePlanPanel('cocina')">
+              👨‍🍳 Equipo de Cocina <span id="plan-cocina-arrow">▼</span>
+            </button>
+            <div id="plan-cocina-content" style="display:none;margin-top:8px;"></div>
+          </div>
+          <div class="menu-col" id="menu-col-supl-plan">
+            <button class="menu-btn" style="font-weight:600;" onclick="togglePlanPanel('supl')">
+              📦 Suplementos <span id="plan-supl-arrow">▼</span>
+            </button>
+            <div id="plan-supl-content" style="display:none;margin-top:8px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:20px;">
+        <div style="font-weight:600;color:var(--text);margin-bottom:8px;font-size:0.9rem;">📝 Notas de planeación</div>
+        <textarea id="plan-notas" placeholder="Agrega notas, instrucciones especiales, requerimientos del cliente…"
+          style="width:100%;min-height:100px;padding:10px;border:1.5px solid var(--border);border-radius:8px;font-size:0.88rem;resize:vertical;font-family:inherit;box-sizing:border-box;"
+          oninput="savePlanNotas()">${plan.notas || ''}</textarea>
+      </div>
+
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <div style="font-weight:600;color:var(--text);font-size:0.9rem;">✅ Ítems de planeación</div>
+          <button class="btn btn-primary btn-sm" onclick="addPlanItem()">+ Agregar ítem</button>
+        </div>
+        <div id="plan-items-list">
+          ${plan.items.length === 0
+            ? `<p style="color:var(--muted);font-size:0.85rem;text-align:center;padding:20px 0;">Sin ítems aún. Agrega tareas o pendientes del evento.</p>`
+            : plan.items.map((item, i) => `
+              <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface);border:1.5px solid ${item.done ? 'var(--teal)' : 'var(--border)'};border-radius:8px;margin-bottom:8px;">
+                <input type="checkbox" ${item.done ? 'checked' : ''} onchange="togglePlanItem(${i})"
+                  style="width:17px;height:17px;accent-color:var(--teal);cursor:pointer;flex-shrink:0;">
+                <span style="flex:1;font-size:0.88rem;${item.done ? 'text-decoration:line-through;color:var(--muted);' : ''}">${item.text}</span>
+                <button onclick="deletePlanItem(${i})" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:1rem;padding:0 4px;" title="Eliminar">🗑</button>
+              </div>`).join('')
+          }
+        </div>
+      </div>
+    `;
+    restoreOpenMenuSections();
+    // Re-enganchar paneles de operaciones si estaban abiertos
+    if (_planOpen.cocina) {
+      _planOpen.cocina = false;
+      togglePlanPanel('cocina');
+    }
+    if (_planOpen.supl) {
+      _planOpen.supl = false;
+      togglePlanPanel('supl');
+    }
+  }
+
+  function saveStaffPlan(key, value) {
+    const ev = state.events[currentEventId];
+    if (!ev.planeacion) ev.planeacion = { notas: '', items: [], staffPlan: {} };
+    if (!ev.planeacion.staffPlan) ev.planeacion.staffPlan = {};
+    ev.planeacion.staffPlan[key] = value !== '' ? parseInt(value) : null;
+    save();
+    renderPlaneacion();
+  }
+
+  // Burbujas Cocina y Suplementos en Planeación
+  const _planOpen = { cocina: false, supl: false };
+  function togglePlanPanel(key) {
+    _planOpen[key] = !_planOpen[key];
+    const content = document.getElementById('plan-' + key + '-content');
+    const arrow   = document.getElementById('plan-' + key + '-arrow');
+    if (!content) return;
+
+    if (_planOpen[key]) {
+      // Mover el panel físico dentro del contenedor visible
+      const panelId = key === 'cocina' ? 'cocina-panel' : 'suplementos-panel';
+      const panel   = document.getElementById(panelId);
+      content.appendChild(panel);
+      panel.style.display = 'block';
+      content.style.display = 'block';
+      if (key === 'cocina') switchCocinaCat(currentCocinaCat);
+      if (key === 'supl')   { switchSuplCat(currentSuplCat); renderUniformes(); renderInsumos(); }
+    } else {
+      content.style.display = 'none';
+    }
+    if (arrow) arrow.textContent = _planOpen[key] ? '▲' : '▼';
+  }
+
+  function toggleMenuSection(e, section) {
+    if (e) e.stopPropagation();
+    const panel = document.getElementById('menu-' + section + '-panel');
+    const arrow = document.getElementById('menu-' + section + '-arrow');
+    if (!panel) return;
+    const isHidden = panel.style.display === 'none';
+    if (isHidden) {
+      openMenuSections.add(section);
+      panel.style.display = 'flex';
+      if (section === 'bar') { renderBarList(); }
+    } else {
+      openMenuSections.delete(section);
+      panel.style.display = 'none';
+    }
+    if (arrow) arrow.textContent = isHidden ? '▲' : '▼';
+  }
+
+  function restoreOpenMenuSections() {
+    openMenuSections.forEach(section => {
+      const panel = document.getElementById('menu-' + section + '-panel');
+      const arrow = document.getElementById('menu-' + section + '-arrow');
+      if (panel) panel.style.display = 'flex';
+      if (arrow) arrow.textContent = '▲';
+      if (section === 'bar') { renderBarList(); }
+    });
+  }
+
+  function closeAllMenuSections() {
+    openMenuSections.forEach(section => {
+      const panel = document.getElementById('menu-' + section + '-panel');
+      const arrow = document.getElementById('menu-' + section + '-arrow');
+      if (panel) panel.style.display = 'none';
+      if (arrow) arrow.textContent = '▼';
+    });
+    openMenuSections.clear();
+  }
+
+  function toggleMenuSelect(category, value) {
+    const ev = state.events[currentEventId];
+    if (!ev.planeacion)      ev.planeacion = { notas: '', items: [], staffPlan: {}, menu: {} };
+    if (!ev.planeacion.menu) ev.planeacion.menu = {};
+    let sel = ev.planeacion.menu[category];
+    if (Array.isArray(sel)) sel = Object.fromEntries(sel.map(v=>[v,1]));
+    if (!sel || typeof sel !== 'object') sel = {};
+    ev.planeacion.menu[category] = sel;
+    sel[value] = sel[value] > 0 ? 0 : 1;
+    save();
+    renderPlaneacion();
+  }
+
+  function setMenuQty(category, value, rawVal) {
+    const ev = state.events[currentEventId];
+    if (!ev.planeacion)      ev.planeacion = { notas: '', items: [], staffPlan: {}, menu: {} };
+    if (!ev.planeacion.menu) ev.planeacion.menu = {};
+    let sel = ev.planeacion.menu[category];
+    if (Array.isArray(sel)) sel = Object.fromEntries(sel.map(v=>[v,1]));
+    if (!sel || typeof sel !== 'object') sel = {};
+    ev.planeacion.menu[category] = sel;
+    sel[value] = Math.max(1, parseInt(rawVal) || 1);
+    save();
+  }
+
+  function resetStaffPlanSugerido() {
+    const ev = state.events[currentEventId];
+    if (!ev.planeacion) ev.planeacion = { notas: '', items: [], staffPlan: {} };
+    ['meseros','cocineros','bartenders','chefs'].forEach(k => delete ev.planeacion.staffPlan[k]);
+    save();
+    renderPlaneacion();
+  }
+
+  function savePlanNotas() {
+    const ev = state.events[currentEventId];
+    if (!ev.planeacion) ev.planeacion = { notas: '', items: [] };
+    ev.planeacion.notas = document.getElementById('plan-notas').value;
+    save();
+  }
+
+  function addPlanItem() {
+    const text = prompt('Nuevo ítem de planeación:');
+    if (!text || !text.trim()) return;
+    const ev = state.events[currentEventId];
+    if (!ev.planeacion) ev.planeacion = { notas: '', items: [] };
+    ev.planeacion.items.push({ text: text.trim(), done: false });
+    save();
+    renderPlaneacion();
+  }
+
+  function togglePlanItem(i) {
+    const ev = state.events[currentEventId];
+    ev.planeacion.items[i].done = !ev.planeacion.items[i].done;
+    save();
+    renderPlaneacion();
+  }
+
+  function deletePlanItem(i) {
+    const ev = state.events[currentEventId];
+    ev.planeacion.items.splice(i, 1);
+    save();
+    renderPlaneacion();
+  }
+
+  // ── PDF GENERATION ────────────────────────────────────────────────────
+  function togglePdfMenu(e) {
+    e.stopPropagation();
+    const m = document.getElementById('pdf-menu');
+    m.style.display = m.style.display === 'none' ? 'block' : 'none';
+  }
+  function closePdfMenu() {
+    const m = document.getElementById('pdf-menu');
+    if (m) m.style.display = 'none';
+  }
+  document.addEventListener('click', closePdfMenu);
+
+  function printChecklist() {
+    closePdfMenu();
+    if (!currentEventId) return;
+    const ev = state.events[currentEventId];
+    const clHtml = document.getElementById('checklist-root').innerHTML;
+    const dateStr = ev.date ? new Date(ev.date + 'T12:00:00').toLocaleDateString('es-MX', { day:'2-digit', month:'long', year:'numeric' }) : '';
+    document.getElementById('print-doc').innerHTML = `
+      <div class="pd-page">
+        <div class="pd-brand">Nosh Boutique Catering</div>
+        <h1 class="pd-title">Checklist Operativo</h1>
+        <div class="pd-meta">${ev.name || ''}${dateStr ? ' · ' + dateStr : ''}${ev.location ? ' · ' + ev.location : ''}${ev.attendees ? ' · ' + ev.attendees + ' personas' : ''}</div>
+        ${clHtml}
+      </div>`;
+    setTimeout(() => { window.print(); document.getElementById('print-doc').innerHTML = ''; }, 120);
+  }
+
+  function printCocina() {
+    closePdfMenu();
+    if (!currentEventId) return;
+    const ev = state.events[currentEventId];
+    const cocina  = ev.cocina || { electrodomestico: [], equipamiento: [] };
+    const dateStr = ev.date ? new Date(ev.date + 'T12:00:00').toLocaleDateString('es-MX', { day:'2-digit', month:'long', year:'numeric' }) : '';
+
+    const makeTable = items => {
+      if (!items.length) return '<p class="pd-no-data">Sin ítems registrados.</p>';
+      return `<table style="width:100%;border-collapse:collapse;font-size:0.78rem;">
+        <thead>
+          <tr style="border-bottom:1.5px solid #ccc;">
+            <th style="text-align:left;padding:4px 0;font-weight:700;">Ítem</th>
+            <th style="text-align:center;padding:4px 8px;font-weight:700;">Cant.</th>
+            <th style="text-align:left;padding:4px 0;font-weight:700;color:#666;">Notas</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${items.map(i => `
+          <tr style="border-bottom:1px dotted #e0e0e0;">
+            <td style="padding:5px 0;">${i.name || ''}</td>
+            <td style="text-align:center;padding:5px 8px;font-weight:600;">${i.qty || '—'}</td>
+            <td style="padding:5px 0;color:#666;">${i.notes || ''}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>`;
+    };
+
+    document.getElementById('print-doc').innerHTML = `
+      <div class="pd-page">
+        <div class="pd-brand">Nosh Boutique Catering</div>
+        <h1 class="pd-title">Cocina</h1>
+        <div class="pd-meta">${ev.name || ''}${dateStr ? ' · ' + dateStr : ''}${ev.location ? ' · ' + ev.location : ''}${ev.attendees ? ' · ' + ev.attendees + ' personas' : ''}</div>
+        <div class="pd-section-title">🍳 Electrodomésticos</div>
+        ${makeTable(cocina.electrodomestico)}
+        <div class="pd-section-title">🔪 Equipamiento</div>
+        ${makeTable(cocina.equipamiento)}
+      </div>`;
+    setTimeout(() => { window.print(); document.getElementById('print-doc').innerHTML = ''; }, 120);
+  }
+
+  function printMenu() {
+    closePdfMenu();
+    if (!currentEventId) return;
+    const ev       = state.events[currentEventId];
+    const plan     = ev.planeacion || {};
+    const menuPlan = plan.menu || {};
+    const barPlan  = plan.bar  || {};
+
+    const dateStr = ev.date
+      ? new Date(ev.date + 'T12:00:00').toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' })
+      : '';
+    const tipoLabel = { diner:'Dinner', lunch:'Lunch', coctel:'Cocktail Party' }[ev.eventType] || ev.eventType || '';
+
+    const DISH_NAMES_PM = {
+      'chicken-1':'Pechuga rellena de espinacas y queso feta',
+      'chicken-2':'Muslos al horno con costra de parmesano',
+      'chicken-3':'Pollo a la parrilla, limón y romero',
+      'chicken-4':'Cordón blue relleno de jamón y queso',
+      'chicken-5':'Muslo glaseado con miel y mostaza',
+      'beef-1':'Riba a la parrilla con mantequilla de hierbas',
+      'beef-2':'Filet mignon envuelto en tocino',
+      'beef-3':'Tomahawk a la brasa con chimichurri',
+      'beef-4':'New York Strip con reducción de vino tinto',
+      'beef-5':'Bistec de falda marinada con quinoa y verduras',
+      'seafood-1':'Salmón a la parrilla con glaseado de miel y mostaza',
+      'seafood-2':'Filete de atún sellado con soya y jengibre',
+      'seafood-3':'Ceviche de camarón con chips de plátano',
+      'seafood-4':'Tacos de pescado estilo Baja con crema de aguacate',
+      'seafood-5':'Risotto de mariscos con camarones, calamares y mejillones',
+      'vegan-1':'Lasaña de espinacas y ricota con tomate casero',
+      'vegan-2':'Curry de garbanzos y verduras con arroz basmati',
+      'vegan-3':'Tacos de nopales con frijoles, pico de gallo y guacamole',
+      'vegan-4':'Risotto de champiñones y espárragos con parmesano',
+      'vegan-5':'Hamburguesa de lentejas en pan integral con col',
+    };
+
+    const scaleIng = (qty, unit, portions) => {
+      if (qty === null) return unit;
+      const total = qty * portions;
+      if (unit === 'g'  && total >= 1000) return `${+(total/1000).toFixed(2)} kg`;
+      if (unit === 'ml' && total >= 1000) return `${+(total/1000).toFixed(2)} L`;
+      return `${+total.toFixed(2)} ${unit}`;
+    };
+
+    // ── BAR SECTION ──
+    const barAlc = Object.entries(barPlan.alcoholicas  || {}).filter(([,q]) => q > 0);
+    const barNa  = Object.entries(barPlan.sinAlcohol   || {}).filter(([,q]) => q > 0);
+    const barEq  = Object.entries(barPlan.equipamiento || {}).filter(([,q]) => q > 0);
+
+    const barListHtml = items => `<ul class="pm-list">${items.map(([n,q]) =>
+      `<li><span class="pm-item-name">${n}</span>${q > 1 ? `<span class="pm-item-qty">${q} uds.</span>` : ''}</li>`
+    ).join('')}</ul>`;
+
+    let barSectionHtml = '';
+    if (barAlc.length || barNa.length || barEq.length) {
+      barSectionHtml = `
+        <div class="pm-section">
+          <div class="pm-section-head">Bar</div>
+          ${barAlc.length ? `<div class="pm-subsection-head">Vinos &amp; Licores</div>${barListHtml(barAlc)}` : ''}
+          ${barNa.length  ? `<div class="pm-subsection-head">Sin Alcohol</div>${barListHtml(barNa)}` : ''}
+          ${barEq.length  ? `<div class="pm-subsection-head">Equipamiento</div>${barListHtml(barEq)}` : ''}
+        </div>`;
+    }
+
+    // ── APPETIZER SECTION ──
+    const APP_NAMES_PM = {
+      'cobe-burger':       'Cobe-Burger',
+      'aji-tuna':          'Aji-Tuna',
+      'aranchino':         'Aranchino',
+      'grilled-cheese':    'Grilled Cheese',
+      'caesar-salad-bite': 'Caesar Salad Bite',
+    };
+    const APP_INFO = {
+      'cobe-burger': {
+        desc:  'aged cheddar, turkey bacon, cherry tomato, lettuce, secret sauce, brioche',
+        tags:  ['no gluten', 'no dairy', 'no vegetarian'],
+      },
+    };
+
+    const appSel = menuPlan.appetizer;
+    let appSectionHtml = '';
+    if (appSel && typeof appSel === 'object') {
+      const appItems = Object.entries(appSel).filter(([,q]) => q > 0);
+      if (appItems.length) {
+        let appItemsHtml = '';
+        appItems.forEach(function([v]) {
+          const recipe   = RECIPES[v];
+          const name     = APP_NAMES_PM[v] || (recipe ? recipe.name : v);
+          const ingsDesc = recipe ? recipe.ingredients.map(function(ing){ return ing.name; }).join(', ') : '';
+          const tagsHtml = (recipe && recipe.tags && recipe.tags.length)
+            ? recipe.tags.map(function(t){ return '<span class="pm-tag">' + t + '</span>'; }).join('')
+            : '';
+          appItemsHtml += '<li>'
+            + '<span class="pm-item-name">' + name + '</span>'
+            + (ingsDesc ? '<span class="pm-item-desc">' + ingsDesc + '</span>' : '')
+            + (tagsHtml ? '<span class="pm-tags">' + tagsHtml + '</span>' : '')
+            + '</li>';
+        });
+        appSectionHtml = `
+          <div class="pm-section">
+            <div class="pm-section-head">Passed Hors d'oeuvres</div>
+            <ul class="pm-list">${appItemsHtml}</ul>
+          </div>`;
+      }
+    }
+
+    // ── MAIN COURSE SECTION ──
+    const mainKey = ev.eventType === 'diner' ? 'dinner' : ev.eventType === 'lunch' ? 'lunch' : null;
+    let mainSectionHtml = '';
+    if (mainKey && menuPlan[mainKey] && typeof menuPlan[mainKey] === 'object') {
+      const entries = Object.entries(menuPlan[mainKey]).filter(([,q]) => q > 0);
+      if (entries.length) {
+        const mainLabel = ev.eventType === 'diner' ? 'Dinner' : 'Lunch';
+        let itemsHtml = '';
+        entries.forEach(([v, q]) => {
+          const recipe   = RECIPES[v];
+          const dishName = DISH_NAMES_PM[v] || v;
+          const ingsDesc = recipe
+            ? recipe.ingredients.map(ing => ing.name).join(', ')
+            : '';
+          itemsHtml += `<li>
+            <span class="pm-item-name">${dishName}</span>
+            ${q > 1 ? `<span class="pm-item-qty">${q} porc.</span>` : ''}
+            ${ingsDesc ? `<span class="pm-item-desc" style="width:100%;margin-top:2px;">${ingsDesc}</span>` : ''}
+          </li>`;
+        });
+        mainSectionHtml = `
+          <div class="pm-section">
+            <div class="pm-section-head">${mainLabel}</div>
+            <ul class="pm-list">${itemsHtml}</ul>
+          </div>`;
+      }
+    }
+
+    // ── RENDER ──
+    const menuHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Menú de Evento</title><style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: #fff; }
+        @page { margin: 0.5in; }
+        .pm-page {
+          font-family: 'Helvetica Neue', Arial, sans-serif;
+          color: #111; width: 100%; max-width: 680px;
+          margin: 0 auto; padding: 28px 40px;
+        }
+
+        /* ── LOGO ── */
+        .pm-logo-wrap { display: flex; justify-content: center; margin-bottom: 18px; }
+        .pm-logo {
+          display: inline-flex; flex-direction: column; align-items: center;
+          background: #5eccc8; border: 1.5px solid rgba(255,255,255,0.55);
+          border-radius: 10px; padding: 7px 20px 9px; gap: 1px; line-height: 1;
+          -webkit-print-color-adjust: exact; print-color-adjust: exact;
+        }
+        .pm-logo-name { color: #fff; font-size: 1.6rem; font-weight: 800; letter-spacing: -0.01em; }
+        .pm-logo-sub  { color: rgba(255,255,255,0.9); font-size: 0.58rem; font-weight: 400; letter-spacing: 0.09em; text-transform: lowercase; }
+
+        /* ── EVENT INFO BLOCK ── */
+        .pm-info-block { margin-bottom: 14px; }
+        .pm-info-row {
+          display: grid; grid-template-columns: 140px 1fr;
+          padding: 3px 0;
+          font-size: 0.82rem; line-height: 1.4;
+          border: none;
+        }
+        .pm-info-key { font-weight: 700; color: #555; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; padding-top: 1px; }
+        .pm-info-val { color: #111; }
+
+        /* ── DIVIDER ── */
+        .pm-divider { border: none; border-top: 2px solid #111; margin: 14px 0; }
+
+        /* ── SECTION HEADERS ── */
+        .pm-section { margin-bottom: 16px; }
+        .pm-section-head {
+          font-size: 0.6rem; font-weight: 900; letter-spacing: 0.2em;
+          text-transform: uppercase; color: #888;
+          padding-bottom: 5px; margin-bottom: 8px;
+          border-bottom: 1px solid #ddd;
+        }
+        .pm-subsection-head {
+          font-size: 0.72rem; font-weight: 700; color: #333;
+          margin: 10px 0 4px; text-transform: uppercase; letter-spacing: 0.06em;
+        }
+
+        /* ── ITEM LISTS ── */
+        .pm-list { list-style: none; padding: 0; margin: 0; }
+        .pm-list li { display: block; padding: 4px 0; font-size: 0.82rem; line-height: 1.5; }
+        .pm-item-name { font-weight: 600; color: #111; }
+        .pm-item-desc { font-size: 0.74rem; color: #888; font-weight: 400; font-style: italic; margin-left: 8px; }
+        .pm-item-qty  { font-size: 0.72rem; color: #999; margin-left: 6px; }
+        .pm-tags { display: inline; margin-left: 10px; }
+        .pm-tag  { display: inline; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+                   color: #888; border: 1px solid #ccc; border-radius: 4px; padding: 1px 5px; margin-right: 4px; }
+
+        /* ── FOOTER ── */
+        .pm-footer {
+          margin-top: 28px; padding-top: 12px; border-top: 1px solid #ddd;
+          font-size: 0.65rem; color: #aaa; line-height: 1.7; text-align: center;
+        }
+      </style>
+      <div class="pm-page">
+
+        <!-- LOGO -->
+        <div class="pm-logo-wrap">
+          <div class="pm-logo">
+            <span class="pm-logo-name">nosh</span>
+            <span class="pm-logo-sub">boutique catering</span>
+          </div>
+        </div>
+
+        <!-- EVENT INFO -->
+        <div class="pm-info-block">
+          <div class="pm-info-row"><span class="pm-info-key">Client</span><span class="pm-info-val">${ev.name || '—'}</span></div>
+          <div class="pm-info-row"><span class="pm-info-key">Client Contact</span><span class="pm-info-val">—</span></div>
+          <div class="pm-info-row"><span class="pm-info-key">Event</span><span class="pm-info-val">${tipoLabel || '—'}</span></div>
+          <div class="pm-info-row"><span class="pm-info-key">Location</span><span class="pm-info-val">${ev.location || '—'}</span></div>
+          <div class="pm-info-row"><span class="pm-info-key">Date</span><span class="pm-info-val">${dateStr || '—'}</span></div>
+          <div class="pm-info-row"><span class="pm-info-key">Guests</span><span class="pm-info-val">${ev.attendees ? ev.attendees + ' adults' : '—'}</span></div>
+          <div class="pm-info-row"><span class="pm-info-key">Guest Arrival</span><span class="pm-info-val">—</span></div>
+          <div class="pm-info-row"><span class="pm-info-key">Duration</span><span class="pm-info-val">—</span></div>
+        </div>
+
+        <hr class="pm-divider">
+
+        ${barSectionHtml || ''}
+        ${appSectionHtml || ''}
+        ${mainSectionHtml || ''}
+
+        <!-- FOOTER -->
+        <div class="pm-footer">
+          We source local, organic, sustainably farmed/raised product.<br>
+          We only offer items from the ocean as approved by the Monterey Bay Aquarium's Seafood Watch List.
+        </div>
+
+      </div></body></html>`;
+
+    const w = window.open('', '_blank', 'width=800,height=900');
+    w.document.write(menuHtml);
+    w.document.close();
+    setTimeout(() => { w.print(); }, 400);
+  }
+
+  // ── UTILS ─────────────────────────────────────────────────────────────
+  function formatDate(d) {
+    if (!d) return '';
+    const [y, m, day] = d.split('-');
+    const months = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+    return `${parseInt(day)} ${months[parseInt(m)-1]} ${y}`;
+  }
+
+  // Close modal on overlay click
+  document.getElementById('event-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeEventModal();
+  });
+
+  // Cerrar paneles de menú al hacer clic fuera
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.menu-col')) closeAllMenuSections();
+  });
+
+  // Seleccionar todo al hacer foco en cualquier input numérico
+  document.addEventListener('focusin', function(e) {
+    if (e.target.type === 'number') e.target.select();
+  });
+
+  // ── NAME AUTOCOMPLETE ─────────────────────────────────────────────────
+  let hideDropdownTimer = null;
+
+  function onStaffNameInput() {
+    const q = document.getElementById('new-staff-name').value.toLowerCase().trim();
+    const dropdown = document.getElementById('name-dropdown');
+    const dir = getDirectory();
+    const matches = q.length === 0
+      ? dir.slice().sort((a,b) => a.name.localeCompare(b.name))
+      : dir.filter(p => p.name.toLowerCase().includes(q) || p.role.toLowerCase().includes(q))
+           .sort((a,b) => a.name.localeCompare(b.name));
+
+    if (!matches.length) {
+      dropdown.innerHTML = `<div class="name-dropdown-empty">Sin resultados en el directorio</div>`;
+      dropdown.style.display = 'block';
+      return;
+    }
+    dropdown.innerHTML = matches.map(p => `
+      <div class="name-dropdown-item" onmousedown="pickFromDropdown('${p.id}')">
+        <div class="av">${p.name.charAt(0).toUpperCase()}</div>
+        <div class="txt">
+          <div class="n">${p.name}</div>
+          <div class="m">${p.role}${p.phone ? ' · ' + p.phone : ''}</div>
+        </div>
+      </div>`).join('');
+    dropdown.style.display = 'block';
+  }
+
+  function hideNameDropdown() {
+    // pequeño delay para que el mousedown del item se dispare antes
+    hideDropdownTimer = setTimeout(() => {
+      document.getElementById('name-dropdown').style.display = 'none';
+    }, 150);
+  }
+
+  function pickFromDropdown(id) {
+    clearTimeout(hideDropdownTimer);
+    pickPerson(id);
+    document.getElementById('name-dropdown').style.display = 'none';
+  }
+
+  // ── DIRECTORIO ────────────────────────────────────────────────────────
+  function getDirectory() {
+    if (!state.directory) state.directory = [];
+    return state.directory;
+  }
+
+  function openDirectoryModal() {
+    document.getElementById('dir-search').value = '';
+    document.getElementById('person-form').style.display = 'none';
+    renderDirectory();
+    document.getElementById('directory-modal').classList.add('open');
+  }
+  function closeDirectoryModal() {
+    document.getElementById('directory-modal').classList.remove('open');
+  }
+
+  function openPersonForm(id = null) {
+    const form = document.getElementById('person-form');
+    form.style.display = 'block';
+    form.dataset.editId = id || '';
+    const p = id ? getDirectory().find(p => p.id === id) : {};
+    document.getElementById('dir-name').value  = p?.name  || '';
+    document.getElementById('dir-role').value  = p?.role  || '';
+    document.getElementById('dir-phone').value = p?.phone || '';
+    document.getElementById('dir-email').value = p?.email || '';
+    document.getElementById('dir-shirt').value = p?.shirt || '';
+    document.getElementById('dir-notes').value = p?.notes || '';
+    document.getElementById('dir-name').focus();
+  }
+  function cancelPersonForm() {
+    document.getElementById('person-form').style.display = 'none';
+  }
+
+  function savePerson() {
+    const name = document.getElementById('dir-name').value.trim();
+    const role = document.getElementById('dir-role').value;
+    if (!name || !role) { alert('Nombre y rol son obligatorios.'); return; }
+    const editId = document.getElementById('person-form').dataset.editId;
+    const dir = getDirectory();
+    if (editId) {
+      const p = dir.find(p => p.id === editId);
+      if (p) { p.name = name; p.role = role; p.phone = document.getElementById('dir-phone').value.trim(); p.email = document.getElementById('dir-email').value.trim(); p.shirt = document.getElementById('dir-shirt').value; p.notes = document.getElementById('dir-notes').value.trim(); }
+    } else {
+      dir.push({ id: Date.now().toString(), name, role,
+        phone: document.getElementById('dir-phone').value.trim(),
+        email: document.getElementById('dir-email').value.trim(),
+        shirt: document.getElementById('dir-shirt').value,
+        notes: document.getElementById('dir-notes').value.trim() });
+    }
+    save();
+    cancelPersonForm();
+    renderDirectory();
+  }
+
+  function deletePerson(id) {
+    if (!confirm('¿Eliminar esta persona del directorio?')) return;
+    state.directory = state.directory.filter(p => p.id !== id);
+    save();
+    renderDirectory();
+  }
+
+  function renderDirectory() {
+    const q = document.getElementById('dir-search').value.toLowerCase();
+    const list = document.getElementById('directory-list');
+    const people = getDirectory()
+      .filter(p => p.name.toLowerCase().includes(q) || p.role.toLowerCase().includes(q))
+      .sort((a,b) => a.name.localeCompare(b.name));
+    if (!people.length) {
+      list.innerHTML = '<p style="color:var(--muted);text-align:center;padding:24px">Sin personas en el directorio.</p>';
+      return;
+    }
+    list.innerHTML = people.map(p => `
+      <div class="dir-card">
+        <div class="avatar">${p.name.charAt(0).toUpperCase()}</div>
+        <div class="info">
+          <div class="name">${p.name}</div>
+          <div class="meta">
+            ${p.role}${p.phone ? ' · ' + p.phone : ''}${p.email ? ' · ' + p.email : ''}${p.shirt ? ' · 👕 ' + p.shirt : ''}
+            ${p.notes ? '<br><span style="color:var(--muted)">' + p.notes + '</span>' : ''}
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn-icon" onclick="openPersonForm('${p.id}')" title="Editar">✏️</button>
+          <button class="btn-icon" onclick="deletePerson('${p.id}')" title="Eliminar">🗑</button>
+        </div>
+      </div>`).join('');
+  }
+
+  // ── PICKER ────────────────────────────────────────────────────────────
+  function openPickerModal() {
+    if (!currentEventId) return;
+    document.getElementById('picker-search').value = '';
+    renderPicker();
+    document.getElementById('picker-modal').classList.add('open');
+  }
+  function closePickerModal() {
+    document.getElementById('picker-modal').classList.remove('open');
+  }
+
+  function renderPicker() {
+    const q = document.getElementById('picker-search').value.toLowerCase();
+    const list = document.getElementById('picker-list');
+    const people = getDirectory()
+      .filter(p => p.name.toLowerCase().includes(q) || p.role.toLowerCase().includes(q))
+      .sort((a,b) => a.name.localeCompare(b.name));
+    if (!people.length) {
+      list.innerHTML = '<p style="color:var(--muted);text-align:center;padding:24px">Sin personas en el directorio. Agrégalas primero desde "🗂 Directorio de Personal".</p>';
+      return;
+    }
+    list.innerHTML = people.map(p => `
+      <div class="picker-card" onclick="pickPerson('${p.id}')">
+        <div class="avatar">${p.name.charAt(0).toUpperCase()}</div>
+        <div class="info">
+          <div class="name">${p.name}</div>
+          <div class="meta">${p.role}${p.phone ? ' · ' + p.phone : ''}</div>
+        </div>
+        <span style="color:var(--accent);font-size:0.8rem;font-weight:600;">Seleccionar</span>
+      </div>`).join('');
+  }
+
+  function pickPerson(id) {
+    const p = getDirectory().find(p => p.id === id);
+    if (!p) return;
+    document.getElementById('new-staff-name').value  = p.name;
+    document.getElementById('new-staff-phone').value = p.phone || '';
+    document.getElementById('new-staff-email').value = p.email || '';
+    document.getElementById('new-staff-shirt').value = p.shirt || '';
+    const sel = document.getElementById('new-staff-role');
+    const opt = Array.from(sel.options).find(o => o.value === p.role);
+    if (opt) sel.value = p.role;
+    closePickerModal();
+    document.getElementById('name-dropdown').style.display = 'none';
+  }
+
+  // Close modals on overlay click
+  ['directory-modal','picker-modal','edit-staff-modal'].forEach(id => {
+    document.getElementById(id).addEventListener('click', function(e) {
+      if (e.target === this) this.classList.remove('open');
+    });
+  });
+
+  // ── INIT ──────────────────────────────────────────────────────────────
+  updateRoleSelect();
+  renderEventList();
+  if (!Object.keys(state.events).length) showEmpty();
+</script>
+</body>
+</html>
