@@ -56,8 +56,8 @@
 
     /* ── HEADER ── */
     header {
-      background: linear-gradient(110deg, #0d1f2d 0%, #0d2a2e 40%, #1a4a45 70%, #2a7a72 100%);
-      border-bottom: 2px solid #5eccc8;
+      background: linear-gradient(135deg, #5eccc8, #1a9e99);
+      border-bottom: 2px solid rgba(255,255,255,0.2);
       padding: 0 28px;
       height: 62px;
       display: flex;
@@ -95,21 +95,21 @@
     }
     header h1 {
       font-size: 1.25rem; font-weight: 800;
-      color: #f1f5f9; letter-spacing: -0.02em;
+      color: #fff; letter-spacing: -0.02em;
     }
     header .header-subtitle {
-      font-size: 0.72rem; color: #94b8c0; font-weight: 400; letter-spacing: 0.02em;
+      font-size: 0.72rem; color: rgba(255,255,255,0.8); font-weight: 400; letter-spacing: 0.02em;
     }
     .header-dir-btn {
-      background: #1e293b; border: 1px solid #2d3f55; cursor: pointer;
-      color: #94a3b8; font-size: 0.72rem; font-weight: 600;
+      background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.3); cursor: pointer;
+      color: #fff; font-size: 0.72rem; font-weight: 600;
       display: flex; align-items: center; gap: 4px;
       padding: 5px 10px; border-radius: 6px;
       transition: color 0.2s, background 0.2s;
       font-family: inherit; white-space: nowrap;
       position: absolute; top: 8px; right: 12px;
     }
-    .header-dir-btn:hover { color: #cbd5e1; background: #263344; }
+    .header-dir-btn:hover { background: rgba(255,255,255,0.28); }
 
     /* ── LAYOUT ── */
     .app { display: flex; height: calc(100vh - 62px); }
