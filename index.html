@@ -106,11 +106,7 @@
       -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
       filter: drop-shadow(0 2px 6px rgba(76,28,150,0.28)) drop-shadow(0 1px 2px rgba(0,0,0,0.18));
     }
-    header .header-subtitle {
-      font-size: 0.95rem; font-weight: 600; letter-spacing: 0.02em;
-      background: linear-gradient(110deg, #0d1f2d 0%, #1a4a45 100%);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-    }
+    header .header-subtitle { display: none; }
     .header-dir-btn {
       background: none; border: none; cursor: pointer;
       font-size: 0.82rem; font-weight: 700;
@@ -118,16 +114,18 @@
       padding: 5px 8px; border-radius: 6px;
       transition: opacity 0.2s; font-family: inherit; white-space: nowrap;
       position: absolute; top: 8px; right: 12px;
-      background: linear-gradient(110deg, #0d1f2d 0%, #1a4a45 100%);
+      background: linear-gradient(115deg, #0a0a1a 0%, #1a0f3d 35%, #2e1065 65%, #4c2896 100%);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      filter: drop-shadow(0 1px 4px rgba(76,28,150,0.22)) drop-shadow(0 1px 1px rgba(0,0,0,0.14));
     }
     .header-dir-btn:hover { opacity: 0.7; }
     .sidebar-header .btn-primary {
       background: none !important; box-shadow: none !important; border: none;
       font-size: 0.82rem; font-weight: 700; padding: 6px 4px;
-      background: linear-gradient(110deg, #0d1f2d 0%, #1a4a45 100%) !important;
+      background: linear-gradient(115deg, #0a0a1a 0%, #1a0f3d 35%, #2e1065 65%, #4c2896 100%) !important;
       -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important;
       background-clip: text !important;
+      filter: drop-shadow(0 1px 4px rgba(76,28,150,0.22)) drop-shadow(0 1px 1px rgba(0,0,0,0.14));
     }
     .sidebar-header .btn-primary:hover { opacity: 0.7; transform: none; box-shadow: none !important; }
 
@@ -182,7 +180,12 @@
       border-left: 4px solid #5eccc8;
       box-shadow: 0 2px 10px rgba(94,204,200,0.15);
     }
-    .event-card .name { font-weight: 700; font-size: 1.02rem; }
+    .event-card .name {
+      font-weight: 700; font-size: 1.02rem;
+      background: linear-gradient(115deg, #0a0a1a 0%, #1a0f3d 35%, #2e1065 65%, #4c2896 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      filter: drop-shadow(0 1px 4px rgba(76,28,150,0.22)) drop-shadow(0 1px 1px rgba(0,0,0,0.14));
+    }
     .event-card .meta { font-size: 0.82rem; color: var(--muted); margin-top: 5px; display: flex; gap: 8px; flex-wrap: wrap; }
     .event-card .badge {
       display: inline-flex;
@@ -1133,8 +1136,7 @@
 <header>
   <div class="brand">
     <div class="header-app">
-      <h1>Management</h1>
-      <span class="header-subtitle">Nosh Boutique Catering</span>
+      <h1>Nosh Management</h1>
     </div>
   </div>
   <button class="header-dir-btn" onclick="openDirectoryModal()">
