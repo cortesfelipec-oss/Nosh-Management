@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Nosh Management</title>
+  <title>Management</title>
 
   <!-- ── FIREBASE SDK ── -->
   <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
@@ -106,14 +106,21 @@
       -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
       filter: drop-shadow(0 2px 6px rgba(76,28,150,0.28)) drop-shadow(0 1px 2px rgba(0,0,0,0.18));
     }
-    header .header-subtitle { display: none; }
+    header .header-subtitle {
+      font-size: 0.95rem; font-weight: 600; letter-spacing: 0.02em;
+      background: linear-gradient(115deg, #0a0a1a 0%, #1a0f3d 35%, #2e1065 65%, #4c2896 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
     .header-dir-btn {
       background: none; border: none; cursor: pointer;
       font-size: 0.82rem; font-weight: 700;
-      display: flex; align-items: center; gap: 5px;
+      display: flex; align-items: center; gap: 3px;
       padding: 5px 8px; border-radius: 6px;
       transition: opacity 0.2s; font-family: inherit; white-space: nowrap;
       position: absolute; top: 8px; right: 12px;
+    }
+    .header-dir-btn .dir-icon { font-size: 1rem; line-height: 1; }
+    .header-dir-btn .dir-label {
       background: linear-gradient(115deg, #0a0a1a 0%, #1a0f3d 35%, #2e1065 65%, #4c2896 100%);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
       filter: drop-shadow(0 1px 4px rgba(76,28,150,0.22)) drop-shadow(0 1px 1px rgba(0,0,0,0.14));
@@ -1136,11 +1143,12 @@
 <header>
   <div class="brand">
     <div class="header-app">
-      <h1>Nosh Management</h1>
+      <h1>Management</h1>
+      <span class="header-subtitle">Nosh Boutique Catering</span>
     </div>
   </div>
   <button class="header-dir-btn" onclick="openDirectoryModal()">
-    🗂 Directorio
+    <span class="dir-icon">🗂</span><span class="dir-label"> Directorio</span>
   </button>
 </header>
 
