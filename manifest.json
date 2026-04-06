@@ -4,6 +4,7 @@
   "description": "Gestión operativa de eventos Nosh Boutique Catering",
   "start_url": "/",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone"],
   "orientation": "portrait-primary",
   "background_color": "#f2fafa",
   "theme_color": "#5eccc8",

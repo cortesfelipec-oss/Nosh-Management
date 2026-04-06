@@ -65,12 +65,18 @@
     header {
       background: linear-gradient(135deg, #5eccc8, #1a9e99);
       border-bottom: 2px solid rgba(255,255,255,0.2);
-      padding: 0 28px 10px;
-      height: 82px;
+      padding: env(titlebar-area-y, 0px) 28px 10px env(titlebar-area-x, 28px);
+      height: calc(env(titlebar-area-height, 0px) + 82px);
       display: flex;
-      align-items: center;
+      align-items: flex-end;
       gap: 20px;
       position: relative;
+      -webkit-app-region: drag;
+      app-region: drag;
+    }
+    header * {
+      -webkit-app-region: no-drag;
+      app-region: no-drag;
     }
     header .brand { display: flex; align-items: center; gap: 14px; }
 
@@ -137,7 +143,7 @@
     .sidebar-header .btn-primary:hover { opacity: 0.7; transform: none; box-shadow: none !important; }
 
     /* ── LAYOUT ── */
-    .app { display: flex; height: calc(100vh - 82px); }
+    .app { display: flex; height: calc(100vh - calc(env(titlebar-area-height, 0px) + 82px)); }
 
     /* ── SIDEBAR ── */
     .sidebar {
