@@ -1,11 +1,11 @@
 {
-  "name": "Nosh Management",
-  "short_name": "Nosh",
+  "name": " ",
+  "short_name": " ",
   "description": "Gestión operativa de eventos Nosh Boutique Catering",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "background_color": "#f2fafa",
+  "background_color": "#5eccc8",
   "theme_color": "#5eccc8",
   "icons": [
     {
